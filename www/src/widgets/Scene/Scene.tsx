@@ -4,117 +4,101 @@ import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { jsonObj } from '../../shared/utils/json';
 import block from 'bem-cn-lite';
-import './Scene.scss';
+import { Helpers, Room } from '../../entities';
 
-const b = block('scene')
+const b = block('scene');
 
-const ROOM_DEPTH = 4.0;
-const ROOM_HEIGHT = 2.5;
-const ROOM_WIDTH = 4.0;
+const Cube = ({ position, color }: { position: [number, number, number]; color: string }) => (
+    <mesh position={position}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial color={color} />
+    </mesh>
+);
 
-interface CubeProps {
-    position: [number, number, number];
-    rotation: [number, number, number];
-    size: [number, number, number];
-    color: string;
+function rescaleObject(
+    obj: THREE.Object3D,
+    targetSize: { length: number; width: number; height: number }
+) {
+    const bbox = new THREE.Box3().setFromObject(obj);
+    const size = bbox.getSize(new THREE.Vector3());
+
+    const scale = new THREE.Vector3(
+        targetSize.length / size.x,
+        targetSize.width / size.y,
+        targetSize.height / size.z
+    );
+
+    obj.scale.copy(scale);
 }
 
-const Cube: React.FC<CubeProps> = ({ position, rotation, size, color }) => {
-    return (
-        <mesh position={position} rotation={rotation}>
-            <boxGeometry args={size} />
-            <meshStandardMaterial color={color} />
-            <lineSegments>
-                <edgesGeometry args={[new THREE.BoxGeometry(...size)]} />
-                <lineBasicMaterial color={0x00ff00} />
-            </lineSegments>
-            <axesHelper args={[2]} />
-        </mesh>
-    );
-};
+function degToRad(deg: number) {
+    return (deg * Math.PI) / 180;
+}
 
-interface GLTFModelProps {
+interface Rotation {
+    x_angle?: number;
+    y_angle?: number;
+    z_angle: number;
+}
+
+interface ModelProps {
     modelPath: string;
     position: [number, number, number];
-    rotation: [number, number, number];
-    scale: [number, number, number];
+    rotation: Rotation;
+    size_in_meters: { length: number; width: number; height: number };
 }
 
-const GLTFModel: React.FC<GLTFModelProps> = ({ modelPath, position, rotation, scale }) => {
+const Model: React.FC<ModelProps> = ({ modelPath, position, rotation, size_in_meters }) => {
     const { scene } = useGLTF(modelPath);
-    scene.scale.set(scale[0], scale[1], scale[2]);
 
-    return (
-        <primitive
-            object={scene}
-            position={position}
-            rotation={rotation}
-        >
-            <axesHelper args={[2]} />
-        </primitive>
-    );
+    React.useEffect(() => {
+        rescaleObject(scene, size_in_meters);
+
+        const [x, y, z] = position;
+        scene.position.set(x, y, z);
+
+        const xAngle = degToRad(rotation.x_angle ?? 0);
+        const yAngle = degToRad(rotation.y_angle ?? 0);
+        const zAngle = degToRad(rotation.z_angle ?? 0);
+        scene.rotation.set(xAngle, yAngle, zAngle);
+
+    }, [scene, position, rotation, size_in_meters]);
+
+    return <primitive object={scene} />;
 };
 
 const Scene: React.FC = () => {
-    // Function to calculate scale based on room dimensions
-    const calculateScale = (objectSize: { length: number; width: number; height: number }) => {
-        return [
-            objectSize.length / ROOM_WIDTH,
-            objectSize.width / ROOM_DEPTH,
-            objectSize.height / ROOM_HEIGHT
-        ];
-    };
-
     return (
         <Canvas
-            className={b()}
             camera={{
                 position: [5, 5, 5],
-                up: [0, 0, 1]   // Установка Z как вверх
+                up: [0, 0, 1]
+            }}
+            className={b()}
+            gl={{ antialias: true }}
+            onCreated={({ gl }) => {
+                gl.setClearColor(new THREE.Color('#a8a8a8')); // Set to a dark gray color
             }}
         >
             <directionalLight position={[10, 10, 10]} intensity={0.5} />
             <hemisphereLight intensity={0.35} />
             <OrbitControls />
-            <axesHelper args={[5]} />
+            <Helpers/>
+            <Room/>
 
-            {jsonObj.map((obj) => {
-                const scaleFactors = calculateScale(obj.size_in_meters);
+            <Cube position={[1, 0, 0]} color="red" />
+            <Cube position={[0, 1, 0]} color="green" />
+            <Cube position={[0, 0, 1]} color="blue" />
 
-                // Apply scaled size for GLTF objects
-                const gltfScale = [
-                    obj.size_in_meters.length * scaleFactors[0],
-                    obj.size_in_meters.width * scaleFactors[1],
-                    obj.size_in_meters.height * scaleFactors[2]
-                ];
-
-                return (
-                    <React.Fragment key={obj.new_object_id}>
-                        {/* <Cube
-                            position={[obj.position.x, obj.position.y, obj.position.z]}
-                            size={gltfScale}
-                            rotation={[
-                                ((obj.rotation.x_angle ?? 0) / 180) * Math.PI,
-                                ((obj.rotation.y_angle ?? 0) / 180) * Math.PI,
-                                (obj.rotation.z_angle / 180) * Math.PI + Math.PI
-                            ]}
-                            color="orange"
-
-
-                        /> */}
-                        <GLTFModel
-                            modelPath={`/assets/${obj.new_object_id}.glb`}
-                            position={[obj.position.x, obj.position.y, obj.position.z]}
-                            scale={scaleFactors}   // Apply the scale factors to the GLTF model
-                            rotation={[
-                                ((obj.rotation.x_angle ?? 0) / 180) * Math.PI,
-                                ((obj.rotation.y_angle ?? 0) / 180) * Math.PI,
-                                0
-                            ]}
-                        />
-                    </React.Fragment>
-                );
-            })}
+            {jsonObj.map((obj) => (
+                <Model
+                    key={obj.new_object_id}
+                    modelPath={`/assets/${obj.new_object_id}.glb`}
+                    position={[obj.position.x, obj.position.y, obj.position.z]}
+                    rotation={obj.rotation}
+                    size_in_meters={obj.size_in_meters}
+                />
+            ))}
         </Canvas>
     );
 };

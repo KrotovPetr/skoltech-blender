@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 const ROOM_DEPTH = 4.0;
 const ROOM_HEIGHT = 2.5;
 const ROOM_WIDTH = 4.0;

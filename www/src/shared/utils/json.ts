@@ -26,7 +26,8 @@ export const jsonObj = [
             ]
         },
         "rotation": {
-            "z_angle": 90.0
+            "z_angle": 0.0,
+            "x_angle": 90.0
         },
         "cluster": {
             "constraint_area": {
@@ -37,9 +38,9 @@ export const jsonObj = [
             }
         },
         "position": {
-            "x": 2.0,
-            "y": 3.0,
-            "z": 0.4
+            "x": 0.5,
+            "y": 3.05,
+            "z": 0
         }
     },
     {
@@ -47,9 +48,9 @@ export const jsonObj = [
         "style": "modern",
         "material": "wood",
         "size_in_meters": {
-            "length": 1.0,
+            "length": 1.2,
             "width": 0.8,
-            "height": 0.5
+            "height": 1.0
         },
         "is_on_the_floor": true,
         "facing": "sofa_1",
@@ -63,7 +64,8 @@ export const jsonObj = [
             "objects_in_room": []
         },
         "rotation": {
-            "z_angle": 90.0
+            "z_angle": 90.0,
+            "y_angle": 90.0,
         },
         "cluster": {
             "constraint_area": {
@@ -74,9 +76,9 @@ export const jsonObj = [
             }
         },
         "position": {
-            "x": 1.5,
+            "x": 2.0,
             "y": 2.0,
-            "z": 0.25
+            "z": 0
         }
     },
     {
@@ -106,7 +108,8 @@ export const jsonObj = [
             ]
         },
         "rotation": {
-            "z_angle": 360.0
+            "y_angle": 180.0,
+            "x_angle": 90.0
         },
         "cluster": {
             "constraint_area": {
@@ -117,46 +120,46 @@ export const jsonObj = [
             }
         },
         "position": {
-            "x": 3.0,
+            "x": 3.5,
             "y": 1.0,
-            "z": 0.5
+            "z": 0
         }
     },
-    // {
-    //     "new_object_id": "carpet_1",
-    //     "style": "plush",
-    //     "material": "fabric",
-    //     "size_in_meters": {
-    //         "length": 3.0,
-    //         "width": 2.0,
-    //         "height": 0.1
-    //     },
-    //     "is_on_the_floor": true,
-    //     "facing": "",
-    //     "placement": {
-    //         "room_layout_elements": [
-    //             {
-    //                 "layout_element_id": "middle of the room",
-    //                 "preposition": "on"
-    //             }
-    //         ],
-    //         "objects_in_room": []
-    //     },
-    //     "rotation": {
-    //         "z_angle": 0.0
-    //     },
-    //     "cluster": {
-    //         "constraint_area": {
-    //             "x_neg": 0.6,
-    //             "x_pos": 0.6,
-    //             "y_neg": 0.6,
-    //             "y_pos": 0.6
-    //         }
-    //     },
-    //     "position": {
-    //         "x": 2.5,
-    //         "y": 2.5,
-    //         "z": 0.05
-    //     }
-    // }
+    {
+        "new_object_id": "carpet_1",
+        "style": "plush",
+        "material": "fabric",
+        "size_in_meters": {
+            "length": 5.0,
+            "width": 4.0,
+            "height": 0.1
+        },
+        "is_on_the_floor": true,
+        "facing": "",
+        "placement": {
+            "room_layout_elements": [
+                {
+                    "layout_element_id": "middle of the room",
+                    "preposition": "on"
+                }
+            ],
+            "objects_in_room": []
+        },
+        "rotation": {
+            "z_angle": 270.0
+        },
+        "cluster": {
+            "constraint_area": {
+                "x_neg": 0.6,
+                "x_pos": 0.6,
+                "y_neg": 0.6,
+                "y_pos": 0.6
+            }
+        },
+        "position": {
+            "x": 2.5,
+            "y": 2.5,
+            "z": 0.05
+        }
+    }
 ]
