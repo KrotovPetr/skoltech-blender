@@ -1,5 +1,5 @@
 import { Editor } from "@monaco-editor/react"
-import { jsonObj } from "../../json"
+import { jsonObj } from "../../shared/utils/json"
 
 export const MonacoEditor = () => {
     return (

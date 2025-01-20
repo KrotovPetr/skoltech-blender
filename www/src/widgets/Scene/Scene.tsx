@@ -2,23 +2,15 @@ import React from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
-import { jsonObj } from '../../json';
+import { jsonObj } from '../../shared/utils/json';
+import block from 'bem-cn-lite';
+import './Scene.scss';
+
+const b = block('scene')
 
 const ROOM_DEPTH = 4.0;
 const ROOM_HEIGHT = 2.5;
 const ROOM_WIDTH = 4.0;
-
-const Room = () => (
-    <mesh position={[ROOM_WIDTH / 2, ROOM_DEPTH / 2, ROOM_HEIGHT / 2]}>
-        <boxGeometry args={[ROOM_WIDTH, ROOM_DEPTH, ROOM_HEIGHT]} />
-        <meshStandardMaterial
-            color="lightgray"
-            side={THREE.DoubleSide}
-            opacity={0.2}
-            transparent
-        />
-    </mesh>
-);
 
 interface CubeProps {
     position: [number, number, number];
@@ -75,7 +67,7 @@ const Scene: React.FC = () => {
 
     return (
         <Canvas
-            style={{ height: '100vh', width: '100vw' }}
+            className={b()}
             camera={{
                 position: [5, 5, 5],
                 up: [0, 0, 1]   // Установка Z как вверх
@@ -117,7 +109,7 @@ const Scene: React.FC = () => {
                             rotation={[
                                 ((obj.rotation.x_angle ?? 0) / 180) * Math.PI,
                                 ((obj.rotation.y_angle ?? 0) / 180) * Math.PI,
-                               0
+                                0
                             ]}
                         />
                     </React.Fragment>

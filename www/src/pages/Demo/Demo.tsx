@@ -1,10 +1,11 @@
-import { Flex, RadioButton, RadioButtonOption} from "@gravity-ui/uikit"
-import { MonacoEditor } from "../../widgets/MonacoEditor"
+import { Flex, RadioButton, RadioButtonOption } from "@gravity-ui/uikit"
 import { useState } from "react"
-import { ChatBlock } from "../../widgets"
-import { ThreeDScene } from "../../widgets/Scene/3DScene"
-import { jsonObj } from "../../json"
-import Scene from "../../widgets/Scene/Scene"
+import { ChatWidget } from "../../widgets"
+import Scene from "../../widgets/Scene/Scene";
+import block from 'bem-cn-lite';
+import './Demo.scss';
+
+const b = block('demo-page');
 
 enum EDemoWidget {
     MONACO = "monaco",
@@ -21,13 +22,10 @@ export const Demo = () => {
 
 
     return (
-        <Flex direction={"column"}>
-            <RadioButton name={'edemowidget'} defaultValue={EDemoWidget.SCENE} options={options} onUpdate={(value) => { setRouter(value as any) }} />
-            <Flex>
-                {/* {router === EDemoWidget.MONACO ? <MonacoEditor /> : <ThreeDScene sceneData={jsonObj} />} */}
-                {router === EDemoWidget.MONACO ? <MonacoEditor /> : <Scene />}
-            </Flex>
-            <ChatBlock/>
+        <Flex className={b()}>
+            {/* <RadioButton name={'edemowidget'} defaultValue={EDemoWidget.SCENE} options={options} onUpdate={(value) => { setRouter(value as any) }} /> */}
+            <Scene />
+            <ChatWidget />
         </Flex>
     )
 }

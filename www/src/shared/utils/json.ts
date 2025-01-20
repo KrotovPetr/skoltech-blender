@@ -42,43 +42,43 @@ export const jsonObj = [
             "z": 0.4
         }
     },
-    // {
-    //     "new_object_id": "coffee_table_1",
-    //     "style": "modern",
-    //     "material": "wood",
-    //     "size_in_meters": {
-    //         "length": 1.0,
-    //         "width": 0.8,
-    //         "height": 0.5
-    //     },
-    //     "is_on_the_floor": true,
-    //     "facing": "sofa_1",
-    //     "placement": {
-    //         "room_layout_elements": [
-    //             {
-    //                 "layout_element_id": "north_wall",
-    //                 "preposition": "on"
-    //             }
-    //         ],
-    //         "objects_in_room": []
-    //     },
-    //     "rotation": {
-    //         "z_angle": 90.0
-    //     },
-    //     "cluster": {
-    //         "constraint_area": {
-    //             "x_neg": 0.4,
-    //             "x_pos": 0.4,
-    //             "y_neg": 0.4,
-    //             "y_pos": 0.4
-    //         }
-    //     },
-    //     "position": {
-    //         "x": 1.5,
-    //         "y": 2.0,
-    //         "z": 0.25
-    //     }
-    // },
+    {
+        "new_object_id": "coffee_table_1",
+        "style": "modern",
+        "material": "wood",
+        "size_in_meters": {
+            "length": 1.0,
+            "width": 0.8,
+            "height": 0.5
+        },
+        "is_on_the_floor": true,
+        "facing": "sofa_1",
+        "placement": {
+            "room_layout_elements": [
+                {
+                    "layout_element_id": "north_wall",
+                    "preposition": "on"
+                }
+            ],
+            "objects_in_room": []
+        },
+        "rotation": {
+            "z_angle": 90.0
+        },
+        "cluster": {
+            "constraint_area": {
+                "x_neg": 0.4,
+                "x_pos": 0.4,
+                "y_neg": 0.4,
+                "y_pos": 0.4
+            }
+        },
+        "position": {
+            "x": 1.5,
+            "y": 2.0,
+            "z": 0.25
+        }
+    },
     {
         "new_object_id": "armchair_1",
         "style": "modern",
