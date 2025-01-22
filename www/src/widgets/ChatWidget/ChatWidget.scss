@@ -1,5 +1,10 @@
 .chat-widget {
-    width: 750px;
+    width: 450px;
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    background: #ffffff;
+    height: 700px;
 
     &__message-footer {
         min-height: 50px;
@@ -27,5 +32,9 @@
 
     &__text-area {
         height: 100%;
+    }
+
+    &__close {
+        justify-self: flex-end;
     }
 }

@@ -16,7 +16,6 @@ const App: React.FC = () => {
         {/* <AsideHeader compact={isAsideCompact} className={b('aside-header')} /> */}
         <Header />
         <Demo />
-        <Footer copyright={'3DModeling Corp'} />
       </Flex>
     </Flex>
   );

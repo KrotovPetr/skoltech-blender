@@ -8,6 +8,7 @@
     "preview": "rsbuild preview"
   },
   "dependencies": {
+    "@gravity-ui/icons": "^2.12.0",
     "@gravity-ui/navigation": "^2.31.0",
     "@monaco-editor/react": "^4.6.0",
     "@react-three/drei": "^9.120.5",
