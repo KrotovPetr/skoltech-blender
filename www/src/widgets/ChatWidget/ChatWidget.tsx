@@ -1,31 +1,89 @@
-import { Avatar, Button, Card, Flex, Icon, Text, TextArea } from "@gravity-ui/uikit"
+import { Button, Card, Flex, Icon, Text, TextArea } from "@gravity-ui/uikit";
 import block from 'bem-cn-lite';
 import './ChatWidget.scss';
-import { Xmark } from "@gravity-ui/icons";
+import { FileArrowRight, Xmark } from "@gravity-ui/icons";
+import { MessageList } from "./MessageList/MessageList";
+import { useState } from "react";
 
 const b = block('chat-widget');
 
 interface ChatWidgetProps {
-    onCloseChat: () => void
+    onCloseChat: () => void;
 }
 
 export const ChatWidget = ({ onCloseChat }: ChatWidgetProps) => {
+
+    const messages = [
+        {
+            id: "1",
+            text: "Для рендера своей модели, напишите текстовый промт. Сборка модели может занять небольшое время",
+            isUser: false
+        }
+    ];
+    const [messagesList, setMessagesList] = useState(messages);
+    const [textAreaContent, setTextAreaContent] = useState("");
+
+    const handleSendMessage = () => {
+        if (textAreaContent.trim() === "") return;
+
+        const userMessage = {
+            id: String(crypto.randomUUID()),
+            text: textAreaContent,
+            isUser: true
+        };
+        
+        setMessagesList([...messagesList, userMessage]);
+
+        setTimeout(() => {
+            const botResponse = {
+                id: String(crypto.randomUUID()),
+                text: `Ваш запрос принят в обработку, процесс генерации начался, ваш тикет ${crypto.randomUUID()}`,
+                isUser: false
+            };
+            setMessagesList(prev => [...prev, botResponse]);
+        }, 2000);
+
+        setTextAreaContent("");
+    };
+
     return (
         <Card className={b()}>
-            <Flex className={b('chat-comtainer')} direction="column">
-                <Flex className={b('chat-widget-header')} alignItems="center" gap={3}>
-                    <Avatar text="Artifical intelligent" size="m" />
-                    <Text variant="header-1" color="secondary">Chat with AI</Text>
-                    <div className={b('ai-status')}></div>
-                    <Flex onClick={() => { onCloseChat() }} className={b('close')}><Icon data={Xmark} size={16} /></Flex>
+            <Flex className={b('chat-container')} direction="column">
+                <Flex className={b('chat-widget-header')} alignItems="center" gap={3} justifyContent="space-between">
+                    <Flex gap={3} alignItems="center">
+                        <Text variant="header-1" color="secondary">Chat with AI</Text>
+                        <div className={b('ai-status')} />
+                    </Flex>
+                    <Flex onClick={onCloseChat} className={b('close')}>
+                        <Icon data={Xmark} size={20} />
+                    </Flex>
                 </Flex>
-                <Flex className={b('message-list')}>234</Flex>
-                <Flex className={b('message-footer')}>
-                    <TextArea maxRows={10} className={b('text-area')} />
-                    <Button pin="round-round" size="m" view="flat-success"> 1</Button>
+                <MessageList messages={messagesList} />
+                <Flex className={b('message-footer')} gap={3} alignItems="center">
+                    <TextArea
+                        maxRows={10}
+                        className={b('text-area')}
+                        minRows={2}
+                        value={textAreaContent}
+                        onChange={(text) => setTextAreaContent(text.currentTarget.value)}
+                        onKeyDown={(event) => {
+                            if (event.key === 'Enter' && !event.shiftKey) {
+                                event.preventDefault();
+                                handleSendMessage();
+                            }
+                        }}
+                    />
+                    <Button
+                        pin="circle-circle"
+                        size="l"
+                        view="flat-success"
+                        className={b('button')}
+                        onClick={handleSendMessage}
+                    >
+                        <Icon data={FileArrowRight} />
+                    </Button>
                 </Flex>
             </Flex>
         </Card>
-
-    )
-}
+    );
+};

@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 
-const ROOM_DEPTH = 4.0;
-const ROOM_HEIGHT = 2.5;
-const ROOM_WIDTH = 4.0;
+interface RoomProps {
+    roomSize: number[];
+}
 
-export const Room = () => (
-    <mesh position={[ROOM_WIDTH / 2, ROOM_DEPTH / 2, ROOM_HEIGHT / 2]}>
-        <boxGeometry args={[ROOM_WIDTH, ROOM_DEPTH, ROOM_HEIGHT]} />
+export const Room = ({roomSize}: RoomProps) => (
+    <mesh position={[roomSize[0] / 2, roomSize[1] / 2, roomSize[2] / 2]}>
+        <boxGeometry args={[roomSize[0], roomSize[1], roomSize[2]]} />
         <meshStandardMaterial
             color="lightgray"
             side={THREE.DoubleSide}

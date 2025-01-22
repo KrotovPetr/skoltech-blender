@@ -5,21 +5,30 @@
     bottom: 20px;
     background: #ffffff;
     height: 700px;
+    z-index: 100;
+
+    &__chat-container {
+        height: 100%;
+    }
 
     &__message-footer {
         min-height: 50px;
         border-top: 1px solid var(--g-color-text-secondary);
         width: 100%;
+        padding: var(--g-spacing-4) var(--g-spacing-2) 0 var(--g-spacing-2);
+
     }
 
     &__message-list {
         flex: 1 1 auto;
+        overflow-y: auto;
     }
 
     &__chat-widget-header {
         height: 50px;
-        padding: 0 var(--g-spacing-3);
+        padding: 0 var(--g-spacing-4);
         width: 100%;
+        border-bottom: 1px solid var(--g-color-text-secondary);
     }
 
     &__ai-status {
@@ -31,10 +40,18 @@
     }
 
     &__text-area {
-        height: 100%;
+        min-height: 50px;
     }
 
     &__close {
         justify-self: flex-end;
+    }
+
+    &__button {
+        background: linear-gradient(90deg, #4a77e8 0%, #5282ff 58.05%);
+
+        svg {
+            color: white
+        }
     }
 }

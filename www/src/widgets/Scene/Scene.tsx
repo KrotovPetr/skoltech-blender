@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
@@ -8,12 +8,17 @@ import { Helpers, Room } from '../../entities';
 
 const b = block('scene');
 
-const Cube = ({ position, color }: { position: [number, number, number]; color: string }) => (
+interface CubeProps {
+    position: [number, number, number];
+    color: string;
+}
+
+const Cube: React.FC<CubeProps> = React.memo(({ position, color }) => (
     <mesh position={position}>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color={color} />
     </mesh>
-);
+));
 
 function rescaleObject(
     obj: THREE.Object3D,
@@ -31,7 +36,7 @@ function rescaleObject(
     obj.scale.copy(scale);
 }
 
-function degToRad(deg: number) {
+function degToRad(deg: number): number {
     return (deg * Math.PI) / 180;
 }
 
@@ -48,10 +53,10 @@ interface ModelProps {
     size_in_meters: { length: number; width: number; height: number };
 }
 
-const Model: React.FC<ModelProps> = ({ modelPath, position, rotation, size_in_meters }) => {
-    const { scene } = useGLTF(modelPath);
+const Model: React.FC<ModelProps> = React.memo(({ modelPath, position, rotation, size_in_meters }) => {
+    const { scene } = useGLTF(modelPath) as { scene: THREE.Object3D };
 
-    React.useEffect(() => {
+    useEffect(() => {
         rescaleObject(scene, size_in_meters);
 
         const [x, y, z] = position;
@@ -65,26 +70,30 @@ const Model: React.FC<ModelProps> = ({ modelPath, position, rotation, size_in_me
     }, [scene, position, rotation, size_in_meters]);
 
     return <primitive object={scene} />;
-};
+});
 
-const Scene: React.FC = () => {
+interface SceneProps {
+    roomSize: number[];
+}
+
+const Scene: React.FC<SceneProps> = React.memo(({ roomSize }) => {
+    const glRef = useRef<THREE.WebGLRenderer | null>(null);
+
     return (
         <Canvas
-            camera={{
-                position: [5, 5, 5],
-                up: [0, 0, 1]
-            }}
+            camera={{ position: [5, 5, 5], up: [0, 0, 1] }}
             className={b()}
             gl={{ antialias: true }}
             onCreated={({ gl }) => {
-                gl.setClearColor(new THREE.Color('#a8a8a8')); // Set to a dark gray color
+                gl.setClearColor(new THREE.Color('#a8a8a8'));
+                glRef.current = gl;
             }}
         >
             <directionalLight position={[10, 10, 10]} intensity={0.5} />
             <hemisphereLight intensity={0.35} />
             <OrbitControls />
-            <Helpers/>
-            <Room/>
+            <Helpers />
+            {roomSize && <Room roomSize={roomSize}/>}
 
             <Cube position={[1, 0, 0]} color="red" />
             <Cube position={[0, 1, 0]} color="green" />
@@ -101,6 +110,6 @@ const Scene: React.FC = () => {
             ))}
         </Canvas>
     );
-};
+});
 
 export default Scene;
