@@ -9,18 +9,11 @@ const b = block('chat-widget');
 
 interface ChatWidgetProps {
     onCloseChat: () => void;
+    messagesList: {id: string, text: string, isUser: boolean}[];
+    addMessage: (arg1: {id: string, text: string, isUser: boolean}) => void;
 }
 
-export const ChatWidget = ({ onCloseChat }: ChatWidgetProps) => {
-
-    const messages = [
-        {
-            id: "1",
-            text: "Для рендера своей модели, напишите текстовый промт. Сборка модели может занять небольшое время",
-            isUser: false
-        }
-    ];
-    const [messagesList, setMessagesList] = useState(messages);
+export const ChatWidget = ({ onCloseChat, messagesList, addMessage }: ChatWidgetProps) => {
     const [textAreaContent, setTextAreaContent] = useState("");
 
     const handleSendMessage = () => {
@@ -32,7 +25,7 @@ export const ChatWidget = ({ onCloseChat }: ChatWidgetProps) => {
             isUser: true
         };
         
-        setMessagesList([...messagesList, userMessage]);
+        addMessage(userMessage);
 
         setTimeout(() => {
             const botResponse = {
@@ -40,7 +33,7 @@ export const ChatWidget = ({ onCloseChat }: ChatWidgetProps) => {
                 text: `Ваш запрос принят в обработку, процесс генерации начался, ваш тикет ${crypto.randomUUID()}`,
                 isUser: false
             };
-            setMessagesList(prev => [...prev, botResponse]);
+            addMessage(botResponse);
         }, 2000);
 
         setTextAreaContent("");

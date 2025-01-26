@@ -6,6 +6,7 @@ import './Demo.scss';
 import { AsideMenu } from "../../entities/AsideMenu/Aside";
 import { MonacoEditor } from "../../widgets/MonacoEditor";
 import { ButtonLayer } from "../../widgets/ButtonLayer";
+import GLBViewer from "../../entities/GLBPreview/GLBPreview";
 
 const b = block('demo-page');
 
@@ -13,6 +14,14 @@ export const Demo = () => {
 
     const [isChatOpen, setChatOpen] = useState(false);
     const [isMonacoOpen, setMonacoOpen] = useState(false);
+    const messages = [
+        {
+            id: "1",
+            text: "Для рендера своей модели, напишите текстовый промт. Сборка модели может занять небольшое время",
+            isUser: false
+        }
+    ];
+    const [messagesList, setMessagesList] = useState(messages);
 
     useEffect(() => {
         const handleMouseEvent = (event: any) => {
@@ -29,22 +38,9 @@ export const Demo = () => {
         };
     }, [isChatOpen]);
 
-    const [xRoom, setXRoomValue] = useState(0);
-    const [yRoom, setYRoomValue] = useState(0);
-    const [zRoom, setZRoomValue] = useState(0);
 
 
-    const changeXValue = (text: string) => {
-        setXRoomValue(Number(text))
-    }
 
-    const changeYValue = (text: string) => {
-        setYRoomValue(Number(text))
-    }
-
-    const changeZValue = (text: string) => {
-        setZRoomValue(Number(text))
-    }
     return (
         <Flex className={b()}>
             <AsideMenu
@@ -54,14 +50,13 @@ export const Demo = () => {
             >
                 <ButtonLayer
                     isChatOpen={isChatOpen}
-                    isMonacoOpen={isMonacoOpen} 
+                    isMonacoOpen={isMonacoOpen}
                     onChatStateChange={() => { setChatOpen((o) => !o) }}
                     onMonacoStateChange={() => { setMonacoOpen((o) => !o) }}
-                    changeXValue={changeXValue}
-                    changeYValue={changeYValue}
-                    changeZValue={changeZValue}
-                    >
-                    <Scene roomSize={[xRoom, yRoom, zRoom]}/>
+                    messagesList={messagesList}
+                    addMessage={(message) => { setMessagesList(o => [...o, message]) }}
+                >
+                    <Scene />
                 </ButtonLayer>
             </AsideMenu>
 
