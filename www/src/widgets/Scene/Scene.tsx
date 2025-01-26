@@ -49,13 +49,13 @@ interface ModelProps {
     rotation: Rotation;
     size_in_meters: { length: number; width: number; height: number };
 }
-
 const Model: React.FC<ModelProps> = React.memo(({ modelPath, position, rotation, size_in_meters }) => {
     const { scene } = useGLTF(modelPath) as { scene: THREE.Object3D };
 
     useEffect(() => {
         rescaleObject(scene, size_in_meters);
 
+        // Обновляем позицию и ротацию только при изменении соответствующих параметров
         scene.position.set(...position);
         scene.rotation.set(
             degToRad(rotation.x_angle ?? 0),
@@ -64,11 +64,18 @@ const Model: React.FC<ModelProps> = React.memo(({ modelPath, position, rotation,
         );
     }, [scene, position, rotation, size_in_meters]);
 
-    // Preserve original materials and render the object
+    // Предотвращение лишнего рендера
     return <primitive object={scene} />;
-});
-
-interface SceneProps { }
+}, (prevProps, nextProps) => 
+  prevProps.modelPath === nextProps.modelPath &&
+  prevProps.position.every((val, index) => val === nextProps.position[index]) &&
+  prevProps.rotation.x_angle === nextProps.rotation.x_angle &&
+  prevProps.rotation.y_angle === nextProps.rotation.y_angle &&
+  prevProps.rotation.z_angle === nextProps.rotation.z_angle &&
+  prevProps.size_in_meters.length === nextProps.size_in_meters.length &&
+  prevProps.size_in_meters.width === nextProps.size_in_meters.width &&
+  prevProps.size_in_meters.height === nextProps.size_in_meters.height
+);
 
 const Scene: React.FC<SceneProps> = () => {
     const glRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -79,15 +86,12 @@ const Scene: React.FC<SceneProps> = () => {
             className={b()}
             gl={{ antialias: true }}
             shadows
-            onCreated={({ gl, scene }) => {
+            onCreated={({ gl }) => {
                 gl.setClearColor(new THREE.Color('#a8a8a8'));
-                // scene.rotation.set(THREE.MathUtils.degToRad(0), 0, 0);
                 glRef.current = gl;
             }}
         >
-            {/* Add an HDRI environment for realistic reflections */}
-            <Environment preset="city" background backgroundRotation={[ THREE.MathUtils.degToRad(90), 0, 0]}/>
-            {/* Add lights */}
+            <Environment preset="city" background backgroundRotation={[THREE.MathUtils.degToRad(90), 0, 0]} />
             <ambientLight intensity={0.5} />
             <directionalLight position={[10, 10, 10]} intensity={1} castShadow />
             <hemisphereLight intensity={0.35} groundColor={new THREE.Color('#888')} />
@@ -96,12 +100,7 @@ const Scene: React.FC<SceneProps> = () => {
             <Helpers />
             <Room roomSize={[5, 5, 2.5]} />
 
-            {/* <Cube position={[1, 0, 0]} color="red" />
-            <Cube position={[0, 1, 0]} color="green" />
-            <Cube position={[0, 0, 1]} color="blue" /> */}
-
-            {/* Render objects with their original materials */}
-            {jsonObj.map((obj) => (
+            {jsonObj.map(obj => (
                 <Model
                     key={obj.new_object_id}
                     modelPath={`/assets/${obj.new_object_id}.glb`}
