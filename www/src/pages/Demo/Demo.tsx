@@ -6,7 +6,6 @@ import './Demo.scss';
 import { AsideMenu } from "../../entities/AsideMenu/Aside";
 import { MonacoEditor } from "../../widgets/MonacoEditor";
 import { ButtonLayer } from "../../widgets/ButtonLayer";
-import GLBViewer from "../../entities/GLBPreview/GLBPreview";
 
 const b = block('demo-page');
 

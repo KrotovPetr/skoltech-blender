@@ -82,12 +82,12 @@ export const jsonObj = [
         }
     },
     {
-        "new_object_id": "armchair_1",
+        "new_object_id": "armchair__leather",
         "style": "modern",
         "material": "leather",
         "size_in_meters": {
             "length": 1.0,
-            "width": 0.9,
+            "width": 1.0,
             "height": 1.0
         },
         "is_on_the_floor": true,
@@ -108,7 +108,7 @@ export const jsonObj = [
             ]
         },
         "rotation": {
-            "y_angle": 180.0,
+            "y_angle": 90.0,
             "x_angle": 90.0
         },
         "cluster": {
