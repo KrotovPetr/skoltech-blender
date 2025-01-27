@@ -91,7 +91,7 @@ const Scene: React.FC<SceneProps> = () => {
                 glRef.current = gl;
             }}
         >
-            <Environment files="/assets/potsdamer_platz_1k.exr" background backgroundRotation={[THREE.MathUtils.degToRad(90), 0, 0]} />
+            {/* <Environment files="/assets/unfinished_office_1k.exr" background backgroundRotation={[THREE.MathUtils.degToRad(90), 0, 0]} /> */}
             <ambientLight intensity={0.5} />
             <directionalLight position={[10, 10, 10]} intensity={1} castShadow />
             <hemisphereLight intensity={0.35} groundColor={new THREE.Color('#888')} />
