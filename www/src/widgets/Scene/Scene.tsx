@@ -1,24 +1,11 @@
-import React, { useEffect, useRef } from 'react';
-import { Canvas, useThree } from '@react-three/fiber';
-import { OrbitControls, useGLTF, Environment } from '@react-three/drei';
+import React, { useEffect } from 'react';
+import { Canvas } from '@react-three/fiber';
+import {OrbitControls, useGLTF} from '@react-three/drei';
 import * as THREE from 'three';
-import { jsonObj } from '../../shared/utils/json';
-import block from 'bem-cn-lite';
-import { Helpers, Room } from '../../entities';
-
-const b = block('scene');
-
-interface CubeProps {
-    position: [number, number, number];
-    color: string;
-}
-
-const Cube: React.FC<CubeProps> = React.memo(({ position, color }) => (
-    <mesh position={position}>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color={color} />
-    </mesh>
-));
+import { Helpers } from '../../entities';
+import { TGLBModels, TRotation } from '../../shared/utils/json';
+import { Cubes } from '../../entities/Cubes';
+import { SceneLights } from '../../entities/SceneLights/SceneLights';
 
 function rescaleObject(obj: THREE.Object3D, targetSize: { length: number; width: number; height: number }) {
     const bbox = new THREE.Box3().setFromObject(obj);
@@ -37,70 +24,42 @@ function degToRad(deg: number): number {
     return (deg * Math.PI) / 180;
 }
 
-interface Rotation {
-    x_angle?: number;
-    y_angle?: number;
-    z_angle?: number;
-}
 
 interface ModelProps {
     modelPath: string;
     position: [number, number, number];
-    rotation: Rotation;
+    rotation: TRotation;
     size_in_meters: { length: number; width: number; height: number };
 }
-const Model: React.FC<ModelProps> = React.memo(({ modelPath, position, rotation, size_in_meters }) => {
+
+const Model: React.FC<ModelProps> = ({ modelPath, position, rotation, size_in_meters }) => {
     const { scene } = useGLTF(modelPath) as { scene: THREE.Object3D };
 
     useEffect(() => {
         rescaleObject(scene, size_in_meters);
 
-        // Обновляем позицию и ротацию только при изменении соответствующих параметров
         scene.position.set(...position);
         scene.rotation.set(
             degToRad(rotation.x_angle ?? 0),
             degToRad(rotation.y_angle ?? 0),
-            degToRad(rotation.z_angle ?? 0)
+            degToRad(rotation.z_angle ?? 0 + Math.PI)
         );
     }, [scene, position, rotation, size_in_meters]);
 
-    // Предотвращение лишнего рендера
     return <primitive object={scene} />;
-}, (prevProps, nextProps) => 
-  prevProps.modelPath === nextProps.modelPath &&
-  prevProps.position.every((val, index) => val === nextProps.position[index]) &&
-  prevProps.rotation.x_angle === nextProps.rotation.x_angle &&
-  prevProps.rotation.y_angle === nextProps.rotation.y_angle &&
-  prevProps.rotation.z_angle === nextProps.rotation.z_angle &&
-  prevProps.size_in_meters.length === nextProps.size_in_meters.length &&
-  prevProps.size_in_meters.width === nextProps.size_in_meters.width &&
-  prevProps.size_in_meters.height === nextProps.size_in_meters.height
-);
+};
 
-const Scene: React.FC<SceneProps> = () => {
-    const glRef = useRef<THREE.WebGLRenderer | null>(null);
-
+const Scene: React.FC = () => {
     return (
         <Canvas
             camera={{ position: [5, 5, 5], up: [0, 0, 1] }}
-            className={b()}
-            gl={{ antialias: true }}
-            shadows
-            onCreated={({ gl }) => {
-                gl.setClearColor(new THREE.Color('#a8a8a8'));
-                glRef.current = gl;
-            }}
         >
-            {/* <Environment files="/assets/unfinished_office_1k.exr" background backgroundRotation={[THREE.MathUtils.degToRad(90), 0, 0]} /> */}
-            <ambientLight intensity={0.5} />
-            <directionalLight position={[10, 10, 10]} intensity={1} castShadow />
-            <hemisphereLight intensity={0.35} groundColor={new THREE.Color('#888')} />
-
             <OrbitControls />
-            <Helpers />
-            <Room roomSize={[5, 5, 2.5]} />
+            <Helpers/>
+            <Cubes/>
+            <SceneLights/>
 
-            {jsonObj.map(obj => (
+            {TGLBModels.map(obj => (
                 <Model
                     key={obj.new_object_id}
                     modelPath={`/assets/${obj.new_object_id}.glb`}

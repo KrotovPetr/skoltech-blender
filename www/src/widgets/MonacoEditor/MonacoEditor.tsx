@@ -1,5 +1,5 @@
 import { Editor } from "@monaco-editor/react"
-import { jsonObj } from "../../shared/utils/json"
+import { TGLBModels } from "../../shared/utils/json"
 import { Flex } from "@gravity-ui/uikit"
 import "./MonacoEditor.scss";
 import block from 'bem-cn-lite';
@@ -12,7 +12,7 @@ export const MonacoEditor = () => {
             <Editor
                 height="85vh"
                 language={"json"}
-                value={JSON.stringify(jsonObj, null, 2)}
+                value={JSON.stringify(TGLBModels, null, 2)}
                 theme={"light"}
                 className={b()}
             />
