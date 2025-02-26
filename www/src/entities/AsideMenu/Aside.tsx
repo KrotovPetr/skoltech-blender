@@ -3,7 +3,7 @@ import { Card, Text } from "@gravity-ui/uikit";
 import { Xmark } from "@gravity-ui/icons";
 import block from 'bem-cn-lite';
 import './Aside.scss'
-import { MonacoEditor } from "../../widgets/MonacoEditor";
+import { MonacoEditor } from "../MonacoEditor";
 
 type Props = {
     children: ReactNode;
@@ -36,7 +36,7 @@ export const AsideMenu: FC<Props> = ({
                             <Xmark />
                         </div>
                     </div>
-                    <MonacoEditor/>
+                    <MonacoEditor />
                 </Card>
             </aside>
         </div>
