@@ -10,13 +10,13 @@ interface RoomLayoutProps {
         }[];
     };
     roomWidth: number; // Ширина комнаты в метрах
-    roomHeight: number; // Выс
+    roomHeight: number; // Высота комнаты в метрах
 }
 
 export const RoomLayout: React.FC<RoomLayoutProps> = ({ data, roomHeight, roomWidth }) => {
-    const scale = 100; // 100 pixels per meter
+    const scale = 100; // 100 пикселей на метр
 
-    // Convert meters to pixels
+    // Конвертация метров в пиксели
     const meterToPixel = (meters: number) => {
         return meters * scale;
     };
@@ -24,11 +24,14 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ data, roomHeight, roomWi
     const pixelWidth = meterToPixel(roomWidth);
     const pixelHeight = meterToPixel(roomHeight);
 
-    // Generate grid lines and axis labels
+    // Функция для инвертирования координаты Y
+    const invertY = (y: number) => pixelHeight - y;
+
+    // Генерация линий сетки и подписей осей
     const gridLines = [];
     const axisLabels = [];
 
-    // Vertical lines (X-axis)
+    // Вертикальные линии (ось X)
     for (let x = 0; x <= pixelWidth / scale; x++) {
         gridLines.push(
             <Line
@@ -43,7 +46,7 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ data, roomHeight, roomWi
         );
     }
 
-    // Horizontal lines (Y-axis)
+    // Горизонтальные линии (ось Y)
     for (let y = 0; y <= pixelHeight / scale; y++) {
         gridLines.push(
             <Line
@@ -54,14 +57,14 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ data, roomHeight, roomWi
             />
         );
         axisLabels.push(
-            <Text key={`ylabel-${y}`} x={5} y={y * scale + 5} text={`${y}m`} fontSize={10} />
+            <Text key={`ylabel-${y}`} x={5} y={invertY(y * scale) + 5} text={`${y}m`} fontSize={10} />
         );
     }
 
     return (
         <Stage width={pixelWidth} height={pixelHeight} style={{ marginTop: 20 }}>
             <Layer>
-                {/* Room outline */}
+                {/* Контур комнаты */}
                 <Rect
                     x={0}
                     y={0}
@@ -71,40 +74,38 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ data, roomHeight, roomWi
                     strokeWidth={2}
                 />
 
-                {/* Grid lines */}
+                {/* Линии сетки */}
                 {gridLines}
 
-                {/* Axis lines */}
-                {/* X-axis */}
+                {/* Ось X */}
                 <Line
                     points={[0, pixelHeight, pixelWidth, pixelHeight]}
                     stroke="black"
                     strokeWidth={2}
                 />
-                {/* Y-axis */}
+                {/* Ось Y */}
                 <Line
-                    points={[0, 0, 0, pixelWidth]}
+                    points={[0, 0, 0, pixelHeight]}
                     stroke="black"
                     strokeWidth={2}
                 />
 
-                {/* Axis labels */}
+                {/* Подписи осей */}
                 {axisLabels}
 
-                {/* Axis titles */}
+                {/* Названия осей */}
                 <Text x={pixelWidth - 20} y={pixelHeight - 10} text="X" fontSize={12} fill="black" />
                 <Text x={10} y={10} text="Y" fontSize={12} fill="black" />
 
-                {/* Wall labels */}
+                {/* Отрисовка объектов */}
                 <Text x={pixelWidth / 2 - 30} y={10} text="North Wall" fontSize={12} fill="black" />
                 <Text x={pixelWidth - 60} y={pixelHeight / 2 - 10} text="East Wall" fontSize={12} fill="black" />
                 <Text x={pixelWidth / 2 - 30} y={pixelHeight - 20} text="South Wall" fontSize={12} fill="black" />
                 <Text x={10} y={pixelHeight / 2 - 10} text="West Wall" fontSize={12} fill="black" />
 
-                {/* Render objects */}
                 {data && data.objects.map((obj, index) => {
                     const x = meterToPixel(obj.position.x);
-                    const y = meterToPixel(obj.position.y);
+                    const y = invertY(meterToPixel(obj.position.y + obj.size.width)); // Инвертируем Y и учитываем высоту объекта
                     const width = meterToPixel(obj.size.length);
                     const height = meterToPixel(obj.size.width);
 
