@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './app/AppNew';
-import { ThemeProvider } from '@gravity-ui/uikit';
+import { App } from './App';
+import { BrowserRouter } from 'react-router-dom';
+import {ThemeProvider} from '@gravity-ui/uikit';
 import '@gravity-ui/uikit/styles/fonts.css';
 import '@gravity-ui/uikit/styles/styles.css';
 
@@ -10,7 +11,11 @@ if (rootEl) {
   const root = ReactDOM.createRoot(rootEl);
   root.render(
     <React.StrictMode>
-      <ThemeProvider theme="light"> <App /></ThemeProvider>
+      <ThemeProvider theme="light">
+        <BrowserRouter basename='/'>
+          <App />
+        </BrowserRouter>
+      </ThemeProvider>
     </React.StrictMode>,
   );
 }
