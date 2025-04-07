@@ -11,7 +11,7 @@ export const Hint = () => {
     const [buttonElement, setButtonElement] = useState(null);
     const [open, setOpen] = useState(false);
     const [jsonContent, setJsonContent] = useState<string>("");
-    const [editorHeight, setEditorHeight] = useState<string>("100px");
+    const [_editorHeight, setEditorHeight] = useState<string>("100px");
 
     useEffect(() => {
         const storagedObjectString = localStorage.getItem('design') ?? '{}';

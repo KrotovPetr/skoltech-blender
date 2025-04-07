@@ -2,6 +2,7 @@
     position: absolute;
     right: var(--g-spacing-5);
     top: var(--g-spacing-5);
+    z-index: 10;
 
     &__popup {
         width: 300px;
