@@ -4,7 +4,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Flex } from '@gravity-ui/uikit';
 import block from "bem-cn-lite";
-import './Scene2d.scss'
+import './Scene2D.scss'
 import { useState } from 'react';
 
 
