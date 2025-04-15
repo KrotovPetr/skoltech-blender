@@ -102,85 +102,85 @@
 // export default Scene;
 
 
-import React, { useRef, useEffect } from 'react';
-import { Canvas, useFrame, useLoader } from '@react-three/fiber';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { OrbitControls } from '@react-three/drei';
+// import React, { useRef, useEffect } from 'react';
+// import { Canvas, useFrame, useLoader } from '@react-three/fiber';
+// import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+// import { OrbitControls } from '@react-three/drei';
 
-// Типы для данных из scene_graph.json
-interface ObjectData {
-  new_object_id: string;
-  position: { x: number; y: number; z: number };
-  rotation: { z_angle: number };
-  size_in_meters: { length: number; width: number; height: number };
-}
+// // Типы для данных из scene_graph.json
+// interface ObjectData {
+//   new_object_id: string;
+//   position: { x: number; y: number; z: number };
+//   rotation: { z_angle: number };
+//   size_in_meters: { length: number; width: number; height: number };
+// }
 
-// Пропсы для компонента Object3D
-interface Object3DProps {
-  data: ObjectData;
-  glbPath: string;
-}
+// // Пропсы для компонента Object3D
+// interface Object3DProps {
+//   data: ObjectData;
+//   glbPath: string;
+// }
 
-// Компонент для загрузки и отображения GLB-модели
-const Object3D: React.FC<Object3DProps> = ({ data, glbPath }) => {
-  const gltf = useLoader(GLTFLoader, glbPath);
-  const ref = useRef<THREE.Group>(null);
+// // Компонент для загрузки и отображения GLB-модели
+// const Object3D: React.FC<Object3DProps> = ({ data, glbPath }) => {
+//   const gltf = useLoader(GLTFLoader, glbPath);
+//   const ref = useRef<THREE.Group>(null);
 
-  // Применяем трансформации (позиция, вращение, масштаб)
-  useEffect(() => {
-    if (ref.current) {
-      // Позиция
-      ref.current.position.set(data.position.x, data.position.y, data.position.z);
+//   // Применяем трансформации (позиция, вращение, масштаб)
+//   useEffect(() => {
+//     if (ref.current) {
+//       // Позиция
+//       ref.current.position.set(data.position.x, data.position.y, data.position.z);
 
-      // Вращение (в радианах)
-      const zRotation = (data.rotation.z_angle / 180) * Math.PI + Math.PI;
-      ref.current.rotation.set(0, 0, zRotation);
+//       // Вращение (в радианах)
+//       const zRotation = (data.rotation.z_angle / 180) * Math.PI + Math.PI;
+//       ref.current.rotation.set(0, 0, zRotation);
 
-      // Масштабирование
-      const { length, width, height } = data.size_in_meters;
-      const scaleX = length / gltf.scene.children[0].geometry.boundingBox.max.x;
-      const scaleY = width / gltf.scene.children[0].geometry.boundingBox.max.y;
-      const scaleZ = height / gltf.scene.children[0].geometry.boundingBox.max.z;
-      ref.current.scale.set(scaleX, scaleY, scaleZ);
-    }
-  }, [data, gltf]);
+//       // Масштабирование
+//       const { length, width, height } = data.size_in_meters;
+//       const scaleX = length / gltf.scene.children[0].geometry.boundingBox.max.x;
+//       const scaleY = width / gltf.scene.children[0].geometry.boundingBox.max.y;
+//       const scaleZ = height / gltf.scene.children[0].geometry.boundingBox.max.z;
+//       ref.current.scale.set(scaleX, scaleY, scaleZ);
+//     }
+//   }, [data, gltf]);
 
-  return <primitive object={gltf.scene} ref={ref} />;
-};
+//   return <primitive object={gltf.scene} ref={ref} />;
+// };
 
-// Основной компонент сцены
-const SceneBuilder: React.FC = () => {
-  // Пример данных из scene_graph.json
-  const objectsInRoom: ObjectData[] = [
-    {
-      new_object_id: 'object1',
-      position: { x: 1, y: 1, z: 0 },
-      rotation: { z_angle: 45 },
-      size_in_meters: { length: 1, width: 1, height: 1 },
-    },
-    {
-      new_object_id: 'object2',
-      position: { x: -1, y: -1, z: 0 },
-      rotation: { z_angle: 90 },
-      size_in_meters: { length: 1, width: 1, height: 1 },
-    },
-  ];
+// // Основной компонент сцены
+// const SceneBuilder: React.FC = () => {
+//   // Пример данных из scene_graph.json
+//   const objectsInRoom: ObjectData[] = [
+//     {
+//       new_object_id: 'object1',
+//       position: { x: 1, y: 1, z: 0 },
+//       rotation: { z_angle: 45 },
+//       size_in_meters: { length: 1, width: 1, height: 1 },
+//     },
+//     {
+//       new_object_id: 'object2',
+//       position: { x: -1, y: -1, z: 0 },
+//       rotation: { z_angle: 90 },
+//       size_in_meters: { length: 1, width: 1, height: 1 },
+//     },
+//   ];
 
-  const glbPaths: { [key: string]: string } = {
-    object1: '/path/to/object1.glb',
-    object2: '/path/to/object2.glb',
-  };
+//   const glbPaths: { [key: string]: string } = {
+//     object1: '/path/to/object1.glb',
+//     object2: '/path/to/object2.glb',
+//   };
 
-  return (
-    <Canvas camera={{ position: [5, 5, 5], fov: 50 }}>
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} />
-      {objectsInRoom.map((obj) => (
-        <Object3D key={obj.new_object_id} data={obj} glbPath={glbPaths[obj.new_object_id]} />
-      ))}
-      <OrbitControls />
-    </Canvas>
-  );
-};
+//   return (
+//     <Canvas camera={{ position: [5, 5, 5], fov: 50 }}>
+//       <ambientLight intensity={0.5} />
+//       <pointLight position={[10, 10, 10]} />
+//       {objectsInRoom.map((obj) => (
+//         <Object3D key={obj.new_object_id} data={obj} glbPath={glbPaths[obj.new_object_id]} />
+//       ))}
+//       <OrbitControls />
+//     </Canvas>
+//   );
+// };
 
-export default SceneBuilder;
+// export default SceneBuilder;

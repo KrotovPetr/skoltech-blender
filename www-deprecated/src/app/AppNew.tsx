@@ -3,7 +3,7 @@ import './Appnew.scss';
 import { Card, Flex, Text } from '@gravity-ui/uikit';
 import { MonacoEditor } from '../entities/MonacoEditor';
 import block from "bem-cn-lite";
-import { RoomLayout } from '../entities/RoomLayout';
+import Scene3D from '../entities/Scene/3dScene/Scene3D';
 
 // {
 //     "objects": [
@@ -57,8 +57,8 @@ const App: React.FC = () => {
 
     return (
         <Flex className={b()} gap={2}>
-            <MonacoEditor jsonData={jsonData} setJsonData={setJsonData} handleSaveRoomSize={handleSaveRoomSize} handleFileUpload={handleFileUpload} roomSize={roomSize} />
-            <Card className={b('scene-card')}>
+            {/* <MonacoEditor jsonData={jsonData} setJsonData={setJsonData} handleSaveRoomSize={handleSaveRoomSize} handleFileUpload={handleFileUpload} roomSize={roomSize} /> */}
+            {/* <Card className={b('scene-card')}>
                 <Flex className={b('scene')} justifyContent="center" alignItems="center" direction="column" gap={2}>
                     <Text variant="subheader-2">План комнаты</Text>
                     <div className={b('room')}>
@@ -67,8 +67,9 @@ const App: React.FC = () => {
                     </div>
 
                 </Flex>
-            </Card>
-
+            </Card> */}
+            {/* <Scene3D /> */}
+                
         </Flex>
     );
 };

@@ -1,0 +1,11 @@
+.sidebar {
+    width: 600px;
+    height: 100%;
+    border-left: 1px solid #eeecec;
+    padding: var(--g-spacing-3);
+
+    &__body {
+        flex: 1;
+        overflow-y: auto;
+    }
+}

@@ -1,1 +1,1 @@
-export * from './Scene3D';
+export * from './deprecated/Scene3D';

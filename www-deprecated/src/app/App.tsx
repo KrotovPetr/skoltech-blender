@@ -28,10 +28,9 @@ const b = block('app');
 
 const App: React.FC = () => {
     return (
-        
-            <Flex className={b()} gap={2}>
-                app
-                {/* <MonacoEditor jsonData={jsonData} setJsonData={setJsonData} handleSaveRoomSize={handleSaveRoomSize} handleFileUpload={handleFileUpload} roomSize={roomSize} />
+
+        <Flex className={b()} gap={2}>
+            {/* <MonacoEditor jsonData={jsonData} setJsonData={setJsonData} handleSaveRoomSize={handleSaveRoomSize} handleFileUpload={handleFileUpload} roomSize={roomSize} />
             <Card className={b('scene-card')}>
                 <Flex className={b('scene')} justifyContent="center" alignItems="center" direction="column" gap={2}>
                     <Text variant="subheader-2">План комнаты</Text>
@@ -43,7 +42,7 @@ const App: React.FC = () => {
                 </Flex>
             </Card> */}
 
-            </Flex>
+        </Flex>
 
 
     );
