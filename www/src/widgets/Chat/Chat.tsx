@@ -2,7 +2,7 @@ import { Flex } from "@gravity-ui/uikit";
 import block from "bem-cn-lite";
 import './Chat.scss';
 import { ChatInput, MessageList } from "../../features";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Message } from "../../shared/types";
 import { DESCRIPTION_ROBOT_MESSAGE, getMessageList, HEIGHT_ROBOT_MESSAGE, LENGTH_ROBOT_MESSAGE, WIDTH_ROBOT_MESSAGE } from "./utils";
 import { useNavigate } from "react-router-dom";
@@ -36,9 +36,9 @@ export const Chat = () => {
                 newRobotMessage = DESCRIPTION_ROBOT_MESSAGE;
             } else if (!updatedObject.description) {
                 updatedObject.description = message.text;
-                
+                console.log(13)
                 setTimeout(() => {
-                    navigate('/model');
+                    navigate('/model/2d');
                 }, 1000);
             }
 
@@ -51,6 +51,16 @@ export const Chat = () => {
             }
         }
     }, []);
+
+    useEffect(() => {
+        const storedObject = JSON.parse(localStorage.getItem('design') || '{}');
+        let updatedObject = { ...storedObject };
+
+        if (updatedObject.description) {
+            navigate('/model/2d');
+        }
+
+    }, [])
 
     return (
         <Flex className={b()} direction="column" gap={2}>
