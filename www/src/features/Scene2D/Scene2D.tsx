@@ -1,17 +1,175 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useDrop } from "react-dnd";
-import { Furniture, PlainSVGObjectData } from "./types";
-import { colors } from "./utils";
 
-export interface RoomLayoutProps {
-    initialObjects: PlainSVGObjectData[];
-    updateJson: (value: string) => void;
+// Интерфейсы для входных данных
+interface SizeInMeters {
+    length: number;
+    width: number;
+    height: number;
+}
+
+interface Position {
+    x: number;
+    y: number;
+    z: number;
+}
+
+interface InputObject {
+    new_object_id: string;
+    size_in_meters: SizeInMeters;
+    position: Position;
+    rotation_z: number;
+    style: string;
+    material: string;
+    color: string;
+}
+
+interface SVGObjectCoordinates {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
+interface PlainSVGObjectData {
+    id: string;
+    label: string;
+    coordinates: SVGObjectCoordinates;
+    style: string;
+    material: string;
+    color: string;
 }
 
 interface PlainSVGObjectDataWithRotation extends PlainSVGObjectData {
-    rotation?: number;
-    id?: string;
+    rotation: number;
+    furnitureType: string;
 }
+
+export interface RoomLayoutProps {
+    initialObjects: InputObject[];
+    updateJson: (value: string) => void;
+}
+
+interface ColorsDisctionary {
+    [key: string]: string;
+}
+
+// Константы
+const METERS_TO_PIXELS = 100;
+const BASE_ROOM_WIDTH = 1024;
+const BASE_ROOM_HEIGHT = 1024;
+const LABEL_SPACE = 20;
+
+// Словарь цветов
+export const colors: ColorsDisctionary = {
+    "TV stand": "#FF0000",
+    "bar counter": "#0000FF",
+    "bench": "#FFFF00",
+    "bookshelf": "#FFBFBF",
+    "cabinet": "#00FF00",
+    "chair": "#FFA500",
+    "chair-bed": "#40E0D0",
+    "coffee table": "#272643",
+    "desk": "#FFD9BF",
+    "dining table": "#8B00FF",
+    "fireplace": "#FF9400",
+    "floor lamp": "#5500FF",
+    "floor plant": "#29922C",
+    "floor vase": "#FF6347",
+    "kitchen island": "#ADFF2F",
+    "modular kitchen": "#FF7F50",
+    "ottoman": "#AFCC43",
+    "rocking chair": "#FF8C00",
+    "rug": "#BAE8E8",
+    "shelves": "#C71585",
+    "side table": "#00BFFF",
+    "sideboard": "#DA70D6",
+    "sofa": "#FF00FF",
+    "stool": "#DC143C",
+    "wardrobe": "#552743",
+    "armchair": "#4A2714",
+    "window": "#000000",
+};
+
+// Вспомогательные функции
+const getFurnitureTypeFromId = (id: string): string => {
+    return id.split('_')[0];
+};
+
+const normalizeForColorDictionary = (type: string): string => {
+    const normalizeMap: { [key: string]: string } = {
+        "tv": "TV stand",
+        "barcounter": "bar counter",
+        "bench": "bench",
+        "bookshelf": "bookshelf",
+        "cabinet": "cabinet",
+        "chair": "chair",
+        "chairbed": "chair-bed",
+        "coffeetable": "coffee table",
+        "desk": "desk",
+        "diningtable": "dining table",
+        "fireplace": "fireplace",
+        "floorlamp": "floor lamp",
+        "floorplant": "floor plant",
+        "floorvase": "floor vase",
+        "kitchenisland": "kitchen island",
+        "modularkitchen": "modular kitchen",
+        "ottoman": "ottoman",
+        "rockingchair": "rocking chair",
+        "rug": "rug",
+        "shelves": "shelves",
+        "sidetable": "side table",
+        "sideboard": "sideboard",
+        "sofa": "sofa",
+        "stool": "stool",
+        "wardrobe": "wardrobe",
+        "armchair": "armchair",
+        "window": "window"
+    };
+
+    return normalizeMap[type.toLowerCase()] || type;
+};
+
+const convertToSVGObject = (inputObject: InputObject): PlainSVGObjectDataWithRotation => {
+    const furnitureType = getFurnitureTypeFromId(inputObject.new_object_id);
+    const normalizedType = normalizeForColorDictionary(furnitureType);
+
+    return {
+        id: inputObject.new_object_id,
+        label: normalizedType,
+        coordinates: {
+            x: inputObject.position.x * METERS_TO_PIXELS,
+            y: inputObject.position.y * METERS_TO_PIXELS,
+            width: inputObject.size_in_meters.length * METERS_TO_PIXELS,
+            height: inputObject.size_in_meters.width * METERS_TO_PIXELS
+        },
+        rotation: inputObject.rotation_z,
+        style: inputObject.style,
+        material: inputObject.material,
+        color: colors[normalizedType] || inputObject.color,
+        furnitureType: normalizedType
+    };
+};
+
+const convertToJSON = (svgObject: PlainSVGObjectDataWithRotation): InputObject => {
+    return {
+        new_object_id: svgObject.id,
+        size_in_meters: {
+            length: svgObject.coordinates.width / METERS_TO_PIXELS,
+            width: svgObject.coordinates.height / METERS_TO_PIXELS,
+            height: 0.98 // дефолтная высота
+        },
+        position: {
+            x: svgObject.coordinates.x / METERS_TO_PIXELS,
+            y: svgObject.coordinates.y / METERS_TO_PIXELS,
+            z: 0
+        },
+        rotation_z: svgObject.rotation,
+        style: svgObject.style,
+        material: svgObject.material,
+        color: svgObject.color
+    };
+};
 
 // Компонент кнопки закрытия
 const CloseButton: React.FC<{
@@ -57,48 +215,12 @@ const CloseButton: React.FC<{
         </g>
     );
 };
-// Функция расчета ViewBox на основе объектов
-const calculateViewBox = (objects: PlainSVGObjectDataWithRotation[]) => {
-    if (objects.length === 0) {
-        return {
-            minX: 0,
-            minY: 0,
-            width: 1024,
-            height: 1024
-        };
-    }
-
-    let minX = Infinity;
-    let maxX = -Infinity;
-    let minY = Infinity;
-    let maxY = -Infinity;
-
-    objects.forEach(obj => {
-        const halfWidth = obj.coordinates.width / 2;
-        const halfHeight = obj.coordinates.height / 2;
-
-        minX = Math.min(minX, obj.coordinates.x - halfWidth);
-        maxX = Math.max(maxX, obj.coordinates.x + halfWidth);
-        minY = Math.min(minY, obj.coordinates.y - halfHeight);
-        maxY = Math.max(maxY, obj.coordinates.y + halfHeight);
-    });
-
-    return {
-        minX: Math.max(0, minX),
-        minY: Math.max(0, minY),
-        width: Math.min(1024, maxX) - Math.max(0, minX),
-        height: Math.min(1024, maxY) - Math.max(0, minY)
-    };
-};
 
 export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJson }) => {
-    const BASE_ROOM_WIDTH = 1024;
-    const BASE_ROOM_HEIGHT = 1024;
-    const LABEL_SPACE = 20;
-
-    // Фиксируем начальный viewBox
+    // Инициализация initialViewBox
     const [initialViewBox] = useState(() => {
-        if (initialObjects.length === 0) {
+        const convertedObjects = initialObjects.map(convertToSVGObject);
+        if (convertedObjects.length === 0) {
             return {
                 minX: 0,
                 minY: 0,
@@ -112,7 +234,7 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
         let minY = Infinity;
         let maxY = -Infinity;
 
-        initialObjects.forEach(obj => {
+        convertedObjects.forEach(obj => {
             const halfWidth = obj.coordinates.width / 2;
             const halfHeight = obj.coordinates.height / 2;
 
@@ -130,19 +252,14 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
         };
     });
 
-    // Используем фиксированные размеры из начального viewBox
+    // Размеры и состояния
     const SCALED_WIDTH = initialViewBox.width;
     const SCALED_HEIGHT = initialViewBox.height;
     const SVG_WIDTH = SCALED_WIDTH + LABEL_SPACE * 2;
     const SVG_HEIGHT = SCALED_HEIGHT + LABEL_SPACE * 2;
 
-    // Состояния
     const [objects, setObjects] = useState<PlainSVGObjectDataWithRotation[]>(
-        initialObjects.map((obj, index) => ({
-            ...obj,
-            id: `${obj.label}-${index}`,
-            rotation: 0
-        }))
+        initialObjects.map(convertToSVGObject)
     );
     const [selectedObjectId, setSelectedObjectId] = useState<string | null>(null);
 
@@ -151,17 +268,15 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
     const svgRef = useRef<SVGSVGElement>(null);
     const roomSvgRef = useRef<SVGSVGElement>(null);
 
-    // Вычисление размеров на основе объектов
-    // const viewBox = calculateViewBox(objects);
-
-    // Границы для объектов
+    // Границы
     const bounds = {
         minX: 0,
         maxX: BASE_ROOM_WIDTH,
         minY: 0,
         maxY: BASE_ROOM_HEIGHT
     };
-    // Функция для преобразования координат
+
+    // Преобразование координат
     const getMouseSVGCoordinates = (clientX: number, clientY: number) => {
         if (!roomSvgRef.current) return { x: 0, y: 0 };
 
@@ -176,7 +291,7 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
         return point.matrixTransform(ctm.inverse());
     };
 
-    // Обработчик перемещения объекта
+    // Обработчики объектов
     const moveObject = (id: string, x: number, y: number) => {
         setObjects(prevObjects =>
             prevObjects.map(obj =>
@@ -194,7 +309,6 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
         );
     };
 
-    // Обработчик обновления объекта
     const updateObject = (id: string, updates: Partial<PlainSVGObjectDataWithRotation>) => {
         setObjects(prevObjects =>
             prevObjects.map(obj =>
@@ -205,54 +319,21 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
         );
     };
 
-    // Обработчик завершения действия
     const handleEndAction = (id: string) => {
-        updateSceneJSON(objects, bounds);
+        const updatedObjects = objects.map(obj => convertToJSON(obj));
+        updateJson(JSON.stringify(updatedObjects, null, 2));
     };
 
-    // Обработчик клика по SVG
     const handleSvgClick = (e: React.MouseEvent) => {
         if (e.target === e.currentTarget) {
             setSelectedObjectId(null);
         }
     };
 
-    // Обновление JSON
-    const updateSceneJSON = (objList: PlainSVGObjectDataWithRotation[], currentBounds: typeof bounds) => {
-        const sceneData = {
-            roomDimensions: {
-                width: BASE_ROOM_WIDTH,
-                height: BASE_ROOM_HEIGHT
-            },
-            visibleArea: {
-                minX: initialViewBox.minX,
-                maxX: initialViewBox.minX + initialViewBox.width,
-                minY: initialViewBox.minY,
-                maxY: initialViewBox.minY + initialViewBox.height,
-                width: initialViewBox.width,
-                height: initialViewBox.height
-            },
-            objects: objList.map(obj => ({
-                id: obj.id,
-                label: obj.label,
-                coordinates: {
-                    x: Math.round(obj.coordinates.x * 100) / 100,
-                    y: Math.round(obj.coordinates.y * 100) / 100,
-                    width: Math.round(obj.coordinates.width * 100) / 100,
-                    height: Math.round(obj.coordinates.height * 100) / 100
-                },
-                rotation: Math.round((obj.rotation || 0) * 100) / 100
-            })),
-            selectedObjectId
-        };
-
-        updateJson(JSON.stringify(sceneData, null, 2));
-    };
-
     // Настройка Drop
     const [, drop] = useDrop(() => ({
         accept: "object",
-        drop: (item: { label: Furniture }, monitor) => {
+        drop: (item: { label: string, style: string, material: string, color: string }, monitor) => {
             const dropOffset = monitor.getClientOffset();
             if (!dropOffset || !roomSvgRef.current) return;
 
@@ -260,18 +341,30 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
             const newId = `${item.label}-${nextIdRef.current}`;
             nextIdRef.current += 1;
 
+            // Создаем новый объект с учетом метрической системы
             const newObj: PlainSVGObjectDataWithRotation = {
+                id: newId,
                 label: item.label,
-                coordinates: { x, y, width: 100, height: 50 },
+                coordinates: {
+                    x,
+                    y,
+                    width: 1.0 * METERS_TO_PIXELS, // 1 метр по умолчанию
+                    height: 0.5 * METERS_TO_PIXELS // 0.5 метра по умолчанию
+                },
                 rotation: 0,
-                id: newId
+                style: item.style,
+                material: item.material,
+                color: colors[normalizeForColorDictionary(item.label)] || item.color,
+                furnitureType: normalizeForColorDictionary(item.label)
             };
 
             setObjects(prev => [...prev, newObj]);
             setSelectedObjectId(newId);
-            updateSceneJSON([...objects, newObj], bounds);
+
+            const updatedObjects = [...objects, newObj].map(obj => convertToJSON(obj));
+            updateJson(JSON.stringify(updatedObjects, null, 2));
         },
-    }), [objects, bounds]);
+    }), [objects]);
 
     // Эффекты
     useEffect(() => {
@@ -281,8 +374,11 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
     }, [drop]);
 
     useEffect(() => {
-        updateSceneJSON(objects, bounds);
+        const updatedObjects = objects.map(obj => convertToJSON(obj));
+        updateJson(JSON.stringify(updatedObjects, null, 2));
     }, [objects]);
+
+    // Рендер
     return (
         <div>
             <svg
@@ -350,7 +446,6 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
                 >
                     Правая стена
                 </text>
-
                 {/* Внутренний SVG */}
                 <svg
                     ref={roomSvgRef}
@@ -384,7 +479,7 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
                     {/* Объекты */}
                     {objects.map((obj, index) => (
                         <DraggableObject
-                            key={obj.id || `${obj.label}-${index}`}
+                            key={obj.id}
                             obj={obj}
                             index={index}
                             roomHeight={BASE_ROOM_HEIGHT}
@@ -417,6 +512,7 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
     );
 };
 
+// Компонент DraggableObject
 const DraggableObject: React.FC<{
     obj: PlainSVGObjectDataWithRotation;
     index: number;
@@ -432,7 +528,6 @@ const DraggableObject: React.FC<{
     getMouseSVGCoordinates: (clientX: number, clientY: number) => { x: number; y: number };
 }> = ({
     obj,
-    index,
     bounds,
     onMove,
     onUpdate,
@@ -442,14 +537,14 @@ const DraggableObject: React.FC<{
     isSelected,
     getMouseSVGCoordinates
 }) => {
-        const objId = obj.id || `${obj.label}-${index}`;
-        const rotation = obj.rotation || 0;
         const ref = useRef<SVGGElement>(null);
+
         // Перемещение объекта
         const handleMouseDown = (e: React.MouseEvent) => {
             if (e.button !== 0) return;
             e.stopPropagation();
 
+            const startCoords = { ...obj.coordinates };
             const { x: startX, y: startY } = getMouseSVGCoordinates(e.clientX, e.clientY);
             const offsetX = startX - obj.coordinates.x;
             const offsetY = startY - obj.coordinates.y;
@@ -460,60 +555,71 @@ const DraggableObject: React.FC<{
                 let newX = currentX - offsetX;
                 let newY = currentY - offsetY;
 
-                // Ограничение движения
                 const halfWidth = obj.coordinates.width / 2;
                 const halfHeight = obj.coordinates.height / 2;
 
                 newX = Math.max(bounds.minX + halfWidth, Math.min(bounds.maxX - halfWidth, newX));
                 newY = Math.max(bounds.minY + halfHeight, Math.min(bounds.maxY - halfHeight, newY));
 
-                onMove(objId, newX, newY);
+                onMove(obj.id, newX, newY);
             };
 
             const handleMouseUp = () => {
                 document.removeEventListener('mousemove', handleMouseMove);
                 document.removeEventListener('mouseup', handleMouseUp);
-                onEndAction(objId);
+                onEndAction(obj.id);
             };
 
             document.addEventListener('mousemove', handleMouseMove);
             document.addEventListener('mouseup', handleMouseUp);
-            onSelect(objId);
+            onSelect(obj.id);
         };
 
-        const handleResize = (dx: number, dy: number, corner: string) => {
-            const minSize = 20; // Минимальный размер объекта
+        // Изменение размера
+        const handleResize = (e: MouseEvent, corner: string, initialData: {
+            width: number;
+            height: number;
+            x: number;
+            y: number;
+            mouseX: number;
+            mouseY: number;
+        }) => {
+            const { x: currentX, y: currentY } = getMouseSVGCoordinates(e.clientX, e.clientY);
 
-            let newWidth = obj.coordinates.width;
-            let newHeight = obj.coordinates.height;
-            let newX = obj.coordinates.x;
-            let newY = obj.coordinates.y;
+            const dx = currentX - initialData.mouseX;
+            const dy = currentY - initialData.mouseY;
 
-            // Рассчитываем новые размеры и позицию в зависимости от угла
+            let newWidth = initialData.width;
+            let newHeight = initialData.height;
+            let newX = initialData.x;
+            let newY = initialData.y;
+
+            const minSize = 20; // Минимальный размер в пикселях
+
             switch (corner) {
                 case 'topLeft':
-                    newWidth = Math.max(minSize, obj.coordinates.width - dx);
-                    newHeight = Math.max(minSize, obj.coordinates.height - dy);
-                    newX = obj.coordinates.x - (newWidth - obj.coordinates.width) / 2;
-                    newY = obj.coordinates.y - (newHeight - obj.coordinates.height) / 2;
+                    newWidth = Math.max(minSize, initialData.width - dx);
+                    newHeight = Math.max(minSize, initialData.height - dy);
+                    newX = initialData.x - (dx / 2);
+                    newY = initialData.y - (dy / 2);
                     break;
                 case 'topRight':
-                    newWidth = Math.max(minSize, obj.coordinates.width + dx);
-                    newHeight = Math.max(minSize, obj.coordinates.height - dy);
-                    newX = obj.coordinates.x + (newWidth - obj.coordinates.width) / 2;
-                    newY = obj.coordinates.y - (newHeight - obj.coordinates.height) / 2;
+                    newWidth = Math.max(minSize, initialData.width + dx);
+                    newHeight = Math.max(minSize, initialData.height - dy);
+                    newX = initialData.x + (dx / 2);
+                    newY = initialData.y - (dy / 2);
                     break;
                 case 'bottomLeft':
-                    newWidth = Math.max(minSize, obj.coordinates.width - dx);
-                    newHeight = Math.max(minSize, obj.coordinates.height + dy);
-                    newX = obj.coordinates.x - (newWidth - obj.coordinates.width) / 2;
-                    newY = obj.coordinates.y + (newHeight - obj.coordinates.height) / 2;
+                    newWidth = Math.max(minSize, initialData.width - dx);
+                    newHeight = Math.max(minSize, initialData.height + dy);
+                    newX = initialData.x - (dx / 2);
+                    newY = initialData.y + (dy / 2);
                     break;
                 case 'bottomRight':
-                    newWidth = Math.max(minSize, obj.coordinates.width + dx);
-                    newHeight = Math.max(minSize, obj.coordinates.height + dy);
-                    newX = obj.coordinates.x + (newWidth - obj.coordinates.width) / 2;
-                    newY = obj.coordinates.y + (newHeight - obj.coordinates.height) / 2;
+                    newWidth = Math.max(minSize, initialData.width + dx);
+                    newHeight = Math.max(minSize, initialData.height + dy);
+                    newX = initialData.x + (dx / 2);
+                    newY = initialData.y + (dy / 2);
                     break;
             }
 
@@ -521,11 +627,10 @@ const DraggableObject: React.FC<{
             const halfWidth = newWidth / 2;
             const halfHeight = newHeight / 2;
 
-            // Ограничиваем позицию объекта границами комнаты
             newX = Math.max(bounds.minX + halfWidth, Math.min(bounds.maxX - halfWidth, newX));
             newY = Math.max(bounds.minY + halfHeight, Math.min(bounds.maxY - halfHeight, newY));
 
-            onUpdate(objId, {
+            onUpdate(obj.id, {
                 coordinates: {
                     width: newWidth,
                     height: newHeight,
@@ -535,15 +640,24 @@ const DraggableObject: React.FC<{
             });
         };
 
-        const handleRotate = (e: MouseEvent, startAngle: number, centerX: number, centerY: number) => {
+        // Вращение
+        const handleRotate = (e: MouseEvent, initialData: {
+            rotation: number;
+            centerX: number;
+            centerY: number;
+            startAngle: number;
+        }) => {
             const { x: currentX, y: currentY } = getMouseSVGCoordinates(e.clientX, e.clientY);
-            const currentAngle = Math.atan2(currentY - centerY, currentX - centerX) * (180 / Math.PI);
-            let newRotation = rotation + (currentAngle - startAngle);
 
-            // Нормализуем угол в диапазоне [0, 360)
+            const currentAngle = Math.atan2(
+                currentY - initialData.centerY,
+                currentX - initialData.centerX
+            ) * (180 / Math.PI);
+
+            let newRotation = initialData.rotation + (currentAngle - initialData.startAngle);
             newRotation = ((newRotation % 360) + 360) % 360;
 
-            onUpdate(objId, { rotation: newRotation });
+            onUpdate(obj.id, { rotation: newRotation });
         };
 
         const x = obj.coordinates.x - obj.coordinates.width / 2;
@@ -554,12 +668,12 @@ const DraggableObject: React.FC<{
         return (
             <g
                 ref={ref}
-                transform={`rotate(${-rotation} ${centerX} ${centerY})`}
+                transform={`rotate(${-obj.rotation} ${centerX} ${centerY})`}
                 style={{ cursor: 'move' }}
                 onMouseDown={handleMouseDown}
                 onClick={(e) => {
                     e.stopPropagation();
-                    onSelect(objId);
+                    onSelect(obj.id);
                 }}
             >
                 <rect
@@ -567,9 +681,9 @@ const DraggableObject: React.FC<{
                     y={y}
                     width={obj.coordinates.width}
                     height={obj.coordinates.height}
-                    fill={colors[obj.label]}
+                    fill={obj.color}
                     fillOpacity={0.3}
-                    stroke={isSelected ? "#00FF00" : colors[obj.label]}
+                    stroke={isSelected ? "#00FF00" : obj.color}
                     strokeWidth={isSelected ? 3 : 2}
                     strokeDasharray={isSelected ? "5,5" : "none"}
                 />
@@ -582,7 +696,7 @@ const DraggableObject: React.FC<{
                     fontSize="12"
                     pointerEvents="none"
                 >
-                    {obj.label}
+                    {obj.furnitureType}
                 </text>
 
                 {isSelected && (
@@ -611,20 +725,23 @@ const DraggableObject: React.FC<{
                                     cursor={cursor}
                                     onMouseDown={(e) => {
                                         e.stopPropagation();
+                                        const initialData = {
+                                            width: obj.coordinates.width,
+                                            height: obj.coordinates.height,
+                                            x: obj.coordinates.x,
+                                            y: obj.coordinates.y,
+                                            mouseX: getMouseSVGCoordinates(e.clientX, e.clientY).x,
+                                            mouseY: getMouseSVGCoordinates(e.clientX, e.clientY).y
+                                        };
+
                                         const handleMouseMove = (moveEvent: MouseEvent) => {
-                                            const { x: currentX, y: currentY } = getMouseSVGCoordinates(
-                                                moveEvent.clientX,
-                                                moveEvent.clientY
-                                            );
-                                            const dx = currentX - obj.coordinates.x;
-                                            const dy = currentY - obj.coordinates.y;
-                                            handleResize(dx * 2, dy * 2, corner);
+                                            handleResize(moveEvent, corner, initialData);
                                         };
 
                                         const handleMouseUp = () => {
                                             document.removeEventListener('mousemove', handleMouseMove);
                                             document.removeEventListener('mouseup', handleMouseUp);
-                                            onEndAction(objId);
+                                            onEndAction(obj.id);
                                         };
 
                                         document.addEventListener('mousemove', handleMouseMove);
@@ -654,22 +771,26 @@ const DraggableObject: React.FC<{
                             cursor="grab"
                             onMouseDown={(e) => {
                                 e.stopPropagation();
-                                const { x: startX, y: startY } = getMouseSVGCoordinates(e.clientX, e.clientY);
-                                const startAngle = Math.atan2(startY - centerY, startX - centerX) * (180 / Math.PI);
+                                const startAngle = Math.atan2(
+                                    getMouseSVGCoordinates(e.clientX, e.clientY).y - centerY,
+                                    getMouseSVGCoordinates(e.clientX, e.clientY).x - centerX
+                                ) * (180 / Math.PI);
+
+                                const initialData = {
+                                    rotation: obj.rotation,
+                                    centerX,
+                                    centerY,
+                                    startAngle
+                                };
 
                                 const handleMouseMove = (moveEvent: MouseEvent) => {
-                                    const { x: currentX, y: currentY } = getMouseSVGCoordinates(
-                                        moveEvent.clientX,
-                                        moveEvent.clientY
-                                    );
-                                    const currentAngle = Math.atan2(currentY - centerY, currentX - centerX) * (180 / Math.PI);
-                                    handleRotate(startAngle, currentAngle);
+                                    handleRotate(moveEvent, initialData);
                                 };
 
                                 const handleMouseUp = () => {
                                     document.removeEventListener('mousemove', handleMouseMove);
                                     document.removeEventListener('mouseup', handleMouseUp);
-                                    onEndAction(objId);
+                                    onEndAction(obj.id);
                                 };
 
                                 document.addEventListener('mousemove', handleMouseMove);
@@ -681,4 +802,3 @@ const DraggableObject: React.FC<{
             </g>
         );
     };
-

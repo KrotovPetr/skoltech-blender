@@ -1,142 +1,361 @@
-import { PlainSVGDataResponse } from "../../features/Scene2D/types";
+import { PlainSVGObjectData } from "../../features/Scene2D/types";
 
-export const data: PlainSVGDataResponse = {
-    "image": "3_jpg.rf.0f4e14109075dd525af384d44901b254.jpg",
-    "annotations": [
-      {
-        "label": "sofa",
-        "coordinates": {
-          "x": 280.5,
-          "y": 703.0,
-          "width": 527,
-          "height": 138
-        }
-      },
-      {
-        "label": "side table",
-        "coordinates": {
-          "x": 475.5,
-          "y": 114.0,
-          "width": 58,
-          "height": 150
-        }
-      },
-      {
-        "label": "rug",
-        "coordinates": {
-          "x": 441.5,
-          "y": 418.0,
-          "width": 475,
-          "height": 352
-        }
-      },
-      {
-        "label": "coffee table",
-        "coordinates": {
-          "x": 250.5,
-          "y": 246.0,
-          "width": 81,
-          "height": 86
-        }
-      },
-      {
-        "label": "coffee table",
-        "coordinates": {
-          "x": 366.5,
-          "y": 416.0,
-          "width": 151,
-          "height": 147
-        }
-      },
-      {
-        "label": "ottoman",
-        "coordinates": {
-          "x": 474.5,
-          "y": 425.0,
-          "width": 56,
-          "height": 62
-        }
-      },
-      {
-        "label": "TV stand",
-        "coordinates": {
-          "x": 809.5,
-          "y": 323.0,
-          "width": 129,
-          "height": 291
-        }
-      },
-      {
-        "label": "floor plant",
-        "coordinates": {
-          "x": 566.5,
-          "y": 88.0,
-          "width": 67,
-          "height": 66
-        }
-      },
-      {
-        "label": "floor plant",
-        "coordinates": {
-          "x": 777.5,
-          "y": 141.0,
-          "width": 54,
-          "height": 53
-        }
-      },
-      {
-        "label": "floor plant",
-        "coordinates": {
-          "x": 747.5,
-          "y": 679.0,
-          "width": 76,
-          "height": 88
-        }
-      },
-      {
-        "label": "fireplace",
-        "coordinates": {
-          "x": 33.5,
-          "y": 538.0,
-          "width": 34,
-          "height": 171
-        }
-      },
-      {
-        "label": "side table",
-        "coordinates": {
-          "x": 606.5,
-          "y": 698.0,
-          "width": 115,
-          "height": 118
-        }
-      },
-      {
-        "label": "sofa",
-        "coordinates": {
-          "x": 230.5,
-          "y": 106.0,
-          "width": 419,
-          "height": 140
-        }
-      },
-      {
-        "label": "sofa",
-        "coordinates": {
-          "x": 102.5,
-          "y": 311.0,
-          "width": 163,
-          "height": 264
-        }
-      },
-      {
-        "label": "window",
-        "coordinates": {
-          "x": 268.5,
-          "y": 16.0,
-          "width": 517,
-          "height": 12
-        }
-      }
-    ]
+export const data: PlainSVGObjectData[] = [
+  {
+    "new_object_id": "sofa_1",
+    "size_in_meters": {
+      "length": 3.77,
+      "width": 1.29,
+      "height": 0.98
+    },
+    "position": {
+      "x": 5.83,
+      "y": 5.73,
+      "z": 0.0
+    },
+    "rotation_z": 90,
+    "style": "Modern",
+    "material": "leather",
+    "color": "black"
+  },
+  {
+    "new_object_id": "sofa_2",
+    "size_in_meters": {
+      "length": 3.77,
+      "width": 1.29,
+      "height": 0.98
+    },
+    "position": {
+      "x": 3.33,
+      "y": 9.98,
+      "z": 0.0
+    },
+    "rotation_z": 0,
+    "style": "Modern",
+    "material": "leather",
+    "color": "black"
+  },
+  {
+    "new_object_id": "side table_1",
+    "size_in_meters": {
+      "length": 0.69,
+      "width": 0.68,
+      "height": 0.45
+    },
+    "position": {
+      "x": 5.84,
+      "y": 1.7,
+      "z": 0.0
+    },
+    "rotation_z": 90,
+    "style": "Modern",
+    "material": "glass",
+    "color": "black"
+  },
+  {
+    "new_object_id": "armchair_1",
+    "size_in_meters": {
+      "length": 1.16,
+      "width": 0.94,
+      "height": 0.9
+    },
+    "position": {
+      "x": 5.92,
+      "y": 2.86,
+      "z": 0.0
+    },
+    "rotation_z": 0,
+    "style": "Modern",
+    "material": "leather",
+    "color": "black"
+  },
+  {
+    "new_object_id": "rug_1",
+    "size_in_meters": {
+      "length": 6.91,
+      "width": 4.54,
+      "height": 0.02
+    },
+    "position": {
+      "x": 3.37,
+      "y": 5.75,
+      "z": 0.0
+    },
+    "rotation_z": 90,
+    "style": "Modern",
+    "material": "wool",
+    "color": "grey"
+  },
+  {
+    "new_object_id": "coffee table_1",
+    "size_in_meters": {
+      "length": 1.12,
+      "width": 0.68,
+      "height": 0.41
+    },
+    "position": {
+      "x": 2.93,
+      "y": 3.79,
+      "z": 0.0
+    },
+    "rotation_z": 0,
+    "style": "Modern",
+    "material": "glass",
+    "color": "black"
+  },
+  {
+    "new_object_id": "coffee table_2",
+    "size_in_meters": {
+      "length": 1.12,
+      "width": 0.68,
+      "height": 0.41
+    },
+    "position": {
+      "x": 3.83,
+      "y": 4.74,
+      "z": 0.0
+    },
+    "rotation_z": 90,
+    "style": "Modern",
+    "material": "glass",
+    "color": "black"
+  },
+  {
+    "new_object_id": "coffee table_3",
+    "size_in_meters": {
+      "length": 1.12,
+      "width": 0.68,
+      "height": 0.41
+    },
+    "position": {
+      "x": 3.79,
+      "y": 6.9,
+      "z": 0.0
+    },
+    "rotation_z": 90,
+    "style": "Modern",
+    "material": "glass",
+    "color": "black"
+  },
+  {
+    "new_object_id": "coffee table_4",
+    "size_in_meters": {
+      "length": 1.12,
+      "width": 0.68,
+      "height": 0.41
+    },
+    "position": {
+      "x": 2.89,
+      "y": 7.77,
+      "z": 0.0
+    },
+    "rotation_z": 90,
+    "style": "Modern",
+    "material": "glass",
+    "color": "black"
+  },
+  {
+    "new_object_id": "floor lamp_1",
+    "size_in_meters": {
+      "length": 0.61,
+      "width": 0.59,
+      "height": 1.44
+    },
+    "position": {
+      "x": 5.84,
+      "y": 9.91,
+      "z": 0.0
+    },
+    "rotation_z": 90,
+    "style": "Modern",
+    "material": "stainless steel",
+    "color": "silver"
+  },
+  {
+    "new_object_id": "floor plant_1",
+    "size_in_meters": {
+      "length": 0.8,
+      "width": 0.61,
+      "height": 0.82
+    },
+    "position": {
+      "x": 1.06,
+      "y": 3.99,
+      "z": 0.0
+    },
+    "rotation_z": 0,
+    "style": "Modern",
+    "material": "ceramic pot",
+    "color": "green"
+  },
+  {
+    "new_object_id": "floor plant_2",
+    "size_in_meters": {
+      "length": 0.8,
+      "width": 0.61,
+      "height": 0.82
+    },
+    "position": {
+      "x": 0.97,
+      "y": 9.72,
+      "z": 0.0
+    },
+    "rotation_z": 0,
+    "style": "Modern",
+    "material": "ceramic pot",
+    "color": "green"
+  },
+  {
+    "new_object_id": "armchair_2",
+    "size_in_meters": {
+      "length": 1.22,
+      "width": 1.04,
+      "height": 0.9
+    },
+    "position": {
+      "x": 0.9,
+      "y": 5.07,
+      "z": 0.0
+    },
+    "rotation_z": 0,
+    "style": "Modern",
+    "material": "leather",
+    "color": "black"
+  },
+  {
+    "new_object_id": "armchair_3",
+    "size_in_meters": {
+      "length": 1.2,
+      "width": 1.04,
+      "height": 0.9
+    },
+    "position": {
+      "x": 0.9,
+      "y": 2.94,
+      "z": 0.0
+    },
+    "rotation_z": 0,
+    "style": "Modern",
+    "material": "leather",
+    "color": "black"
+  },
+  {
+    "new_object_id": "sofa_3",
+    "size_in_meters": {
+      "length": 3.77,
+      "width": 1.29,
+      "height": 0.98
+    },
+    "position": {
+      "x": 3.39,
+      "y": 1.47,
+      "z": 0.0
+    },
+    "rotation_z": 0,
+    "style": "Modern",
+    "material": "leather",
+    "color": "black"
+  },
+  {
+    "new_object_id": "armchair_4",
+    "size_in_meters": {
+      "length": 1.21,
+      "width": 0.91,
+      "height": 0.9
+    },
+    "position": {
+      "x": 5.87,
+      "y": 8.56,
+      "z": 0.0
+    },
+    "rotation_z": 0,
+    "style": "Modern",
+    "material": "leather",
+    "color": "black"
+  },
+  {
+    "new_object_id": "side table_2",
+    "size_in_meters": {
+      "length": 0.69,
+      "width": 0.67,
+      "height": 0.45
+    },
+    "position": {
+      "x": 1.06,
+      "y": 1.7,
+      "z": 0.0
+    },
+    "rotation_z": 0,
+    "style": "Modern",
+    "material": "glass",
+    "color": "black"
+  },
+  {
+    "new_object_id": "side table_3",
+    "size_in_meters": {
+      "length": 0.38,
+      "width": 0.35,
+      "height": 0.45
+    },
+    "position": {
+      "x": 3.77,
+      "y": 3.61,
+      "z": 0.0
+    },
+    "rotation_z": 90,
+    "style": "Modern",
+    "material": "glass",
+    "color": "black"
+  },
+  {
+    "new_object_id": "side table_4",
+    "size_in_meters": {
+      "length": 0.37,
+      "width": 0.32,
+      "height": 0.45
+    },
+    "position": {
+      "x": 3.74,
+      "y": 8.02,
+      "z": 0.0
+    },
+    "rotation_z": 0,
+    "style": "Modern",
+    "material": "glass",
+    "color": "black"
+  },
+  {
+    "new_object_id": "window_1",
+    "size_in_meters": {
+      "length": 4.23,
+      "width": 0.66,
+      "height": 0.66
+    },
+    "position": {
+      "x": 3.79,
+      "y": 0.26,
+      "z": 1.0
+    },
+    "rotation_z": 0,
+    "style": "Modern",
+    "material": "aluminum",
+    "color": "white"
+  },
+  {
+    "new_object_id": "window_2",
+    "size_in_meters": {
+      "length": 5.23,
+      "width": 0.66,
+      "height": 0.66
+    },
+    "position": {
+      "x": 8.05,
+      "y": 5.8,
+      "z": 1.0
+    },
+    "rotation_z": 90,
+    "style": "Modern",
+    "material": "aluminum",
+    "color": "white"
   }
+]

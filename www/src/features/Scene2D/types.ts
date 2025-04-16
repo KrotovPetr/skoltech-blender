@@ -34,8 +34,13 @@ export type Furniture =
     "window";
 
 export interface PlainSVGObjectData {
-    label: Furniture;
-    coordinates: Coordinates;
+    rotation_z: number,
+    style: string,
+    material: string,
+    color: string
+    new_object_id: string
+    size_in_meters: {length: number, width: number, height: number}
+    position: {x: number, y: number, z: number}
 }
 
 export interface RoomLayoutProps {

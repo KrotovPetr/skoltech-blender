@@ -6,6 +6,7 @@ import { Cube, Cubes3, EyesLookRight } from '@gravity-ui/icons';
 import { Scene2D } from '../../widgets/Scene2D/Scene2D';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import './Model.scss';
+import { Scene } from '../../widgets/Scene3D/deprecated-version-1/SceneOld';
 
 const b = block('model');
 
@@ -56,18 +57,18 @@ export const Model = () => {
                 className={b('aside', { open: !compact })}
                 logo={{
                     icon: EyesLookRight,
-                    text: 'AI Studio'
+                    text: 'Plain Design'
                 }}
                 menuItems={[
                     {
                         id: "3d-model",
-                        title: <Text>3D-моделирование</Text>,
+                        title: <Text>3D-scene</Text>,
                         icon: Cube,
                         onItemClick: () => navigate('/model/3d')
                     },
                     {
                         id: "2d-model",
-                        title: <Text>2D-конструктор</Text>,
+                        title: <Text>2D-layout</Text>,
                         icon: Cubes3,
                         onItemClick: () => navigate('/model/2d')
                     },
@@ -79,7 +80,7 @@ export const Model = () => {
                     <Route index element={<ModelIndex />} />
 
                     <Route path="/2d" element={<Scene2D />} />
-                    <Route path="/3d" element={<Scene3D />} />
+                    <Route path="/3d" element={<Scene />} />
 
                     Редирект при неизвестном маршруте
                     <Route path="*" element={<Navigate to="/model/2d" replace />} />

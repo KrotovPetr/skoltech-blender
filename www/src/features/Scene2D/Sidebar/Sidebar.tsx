@@ -26,7 +26,7 @@ export const Sidebar: React.FC<{
       <SegmentedRadioGroup name={'tabs'} defaultValue="furniture" onUpdate={(value) => { setActiveTab(value) }} width="auto">
         <SegmentedRadioGroup.Option value="furniture" content="Мебель" />
         <SegmentedRadioGroup.Option value="scenes" content="Готовые решения" />
-        <SegmentedRadioGroup.Option value="generate" content="Генерация" />
+        {/* <SegmentedRadioGroup.Option value="generate" content="Генерация" /> */}
         <SegmentedRadioGroup.Option value="sson" content="Json" />
       </SegmentedRadioGroup>
 

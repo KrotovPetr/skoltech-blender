@@ -20,7 +20,7 @@ export const Scene2D = () => {
     return (
         <DndProvider backend={HTML5Backend}>
             <Flex className={b()} justifyContent="space-between">
-                <RoomLayout initialObjects={data.annotations} updateJson={updateJson} />
+                <RoomLayout initialObjects={data} updateJson={updateJson} />
                 <Sidebar
                     onLoadScene={function (sceneData: any): void {
                         throw new Error('Function not implemented.');
