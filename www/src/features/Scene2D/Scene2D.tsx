@@ -56,9 +56,11 @@ interface ColorsDisctionary {
 
 // Константы
 const METERS_TO_PIXELS = 100;
-const BASE_ROOM_WIDTH = 1024;
-const BASE_ROOM_HEIGHT = 1024;
 const LABEL_SPACE = 20;
+
+// Определение размеров комнаты
+const ROOM_WIDTH = 8.3 * METERS_TO_PIXELS; // в пикселях
+const ROOM_HEIGHT = 10.96 * METERS_TO_PIXELS; // в пикселях
 
 // Словарь цветов
 export const colors: ColorsDisctionary = {
@@ -217,44 +219,17 @@ const CloseButton: React.FC<{
 };
 
 export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJson }) => {
-    // Инициализация initialViewBox
-    const [initialViewBox] = useState(() => {
-        const convertedObjects = initialObjects.map(convertToSVGObject);
-        if (convertedObjects.length === 0) {
-            return {
-                minX: 0,
-                minY: 0,
-                width: BASE_ROOM_WIDTH,
-                height: BASE_ROOM_HEIGHT
-            };
-        }
-
-        let minX = Infinity;
-        let maxX = -Infinity;
-        let minY = Infinity;
-        let maxY = -Infinity;
-
-        convertedObjects.forEach(obj => {
-            const halfWidth = obj.coordinates.width / 2;
-            const halfHeight = obj.coordinates.height / 2;
-
-            minX = Math.min(minX, obj.coordinates.x - halfWidth);
-            maxX = Math.max(maxX, obj.coordinates.x + halfWidth);
-            minY = Math.min(minY, obj.coordinates.y - halfHeight);
-            maxY = Math.max(maxY, obj.coordinates.y + halfHeight);
-        });
-
-        return {
-            minX: Math.max(0, minX),
-            minY: Math.max(0, minY),
-            width: Math.min(BASE_ROOM_WIDTH, maxX) - Math.max(0, minX),
-            height: Math.min(BASE_ROOM_HEIGHT, maxY) - Math.max(0, minY)
-        };
+    // Инициализация viewBox
+    const [viewBox] = useState({
+        minX: 0,
+        minY: 0,
+        width: ROOM_WIDTH,
+        height: ROOM_HEIGHT
     });
 
     // Размеры и состояния
-    const SCALED_WIDTH = initialViewBox.width;
-    const SCALED_HEIGHT = initialViewBox.height;
+    const SCALED_WIDTH = viewBox.width;
+    const SCALED_HEIGHT = viewBox.height;
     const SVG_WIDTH = SCALED_WIDTH + LABEL_SPACE * 2;
     const SVG_HEIGHT = SCALED_HEIGHT + LABEL_SPACE * 2;
 
@@ -268,12 +243,12 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
     const svgRef = useRef<SVGSVGElement>(null);
     const roomSvgRef = useRef<SVGSVGElement>(null);
 
-    // Границы
+    // Границы комнаты
     const bounds = {
         minX: 0,
-        maxX: BASE_ROOM_WIDTH,
+        maxX: ROOM_WIDTH,
         minY: 0,
-        maxY: BASE_ROOM_HEIGHT
+        maxY: ROOM_HEIGHT
     };
 
     // Преобразование координат
@@ -291,32 +266,109 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
         return point.matrixTransform(ctm.inverse());
     };
 
+    // Функция для проверки, находится ли объект полностью внутри комнаты
+    const isInsideRoom = (
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        rotation: number
+    ): boolean => {
+        // Для объектов с вращением, проверим все четыре угла
+        const halfWidth = width / 2;
+        const halfHeight = height / 2;
+
+        // Углы прямоугольника до вращения (относительно центра)
+        const corners = [
+            { x: -halfWidth, y: -halfHeight },
+            { x: halfWidth, y: -halfHeight },
+            { x: halfWidth, y: halfHeight },
+            { x: -halfWidth, y: halfHeight }
+        ];
+
+        // Вращение в радианах
+        const radians = (rotation * Math.PI) / 180;
+        const cosTheta = Math.cos(radians);
+        const sinTheta = Math.sin(radians);
+
+        // Проверяем, что все углы находятся внутри комнаты
+        for (const corner of corners) {
+            // Применяем вращение к углу
+            const rotatedX = corner.x * cosTheta - corner.y * sinTheta;
+            const rotatedY = corner.x * sinTheta + corner.y * cosTheta;
+
+            // Абсолютные координаты угла
+            const absoluteX = x + rotatedX;
+            const absoluteY = y + rotatedY;
+
+            // Проверяем, что угол внутри комнаты
+            if (
+                absoluteX < bounds.minX ||
+                absoluteX > bounds.maxX ||
+                absoluteY < bounds.minY ||
+                absoluteY > bounds.maxY
+            ) {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
     // Обработчики объектов
     const moveObject = (id: string, x: number, y: number) => {
-        setObjects(prevObjects =>
-            prevObjects.map(obj =>
-                obj.id === id
-                    ? {
-                        ...obj,
-                        coordinates: {
-                            ...obj.coordinates,
-                            x,
-                            y
+        const obj = objects.find(o => o.id === id);
+        if (!obj) return;
+
+        // Проверяем, будет ли новое положение внутри комнаты
+        if (isInsideRoom(x, y, obj.coordinates.width, obj.coordinates.height, obj.rotation)) {
+            setObjects(prevObjects =>
+                prevObjects.map(obj =>
+                    obj.id === id
+                        ? {
+                            ...obj,
+                            coordinates: {
+                                ...obj.coordinates,
+                                x,
+                                y
+                            }
                         }
-                    }
-                    : obj
-            )
-        );
+                        : obj
+                )
+            );
+        }
     };
 
     const updateObject = (id: string, updates: Partial<PlainSVGObjectDataWithRotation>) => {
-        setObjects(prevObjects =>
-            prevObjects.map(obj =>
-                obj.id === id
-                    ? { ...obj, ...updates }
-                    : obj
-            )
-        );
+        const obj = objects.find(o => o.id === id);
+        if (!obj) return;
+
+        // Создаем обновленный объект
+        const updatedObject = { ...obj, ...updates };
+
+        // Если есть изменения в координатах или размерах
+        if (updates.coordinates || updates.rotation !== undefined) {
+            const newCoords = updates.coordinates || obj.coordinates;
+            const newRotation = updates.rotation !== undefined ? updates.rotation : obj.rotation;
+
+            // Проверяем, будет ли новое положение внутри комнаты
+            if (isInsideRoom(
+                newCoords.x,
+                newCoords.y,
+                newCoords.width,
+                newCoords.height,
+                newRotation
+            )) {
+                setObjects(prevObjects =>
+                    prevObjects.map(o => o.id === id ? updatedObject : o)
+                );
+            }
+        } else {
+            // Если изменения не касаются положения или размеров
+            setObjects(prevObjects =>
+                prevObjects.map(o => o.id === id ? updatedObject : o)
+            );
+        }
     };
 
     const handleEndAction = (id: string) => {
@@ -341,28 +393,35 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
             const newId = `${item.label}-${nextIdRef.current}`;
             nextIdRef.current += 1;
 
-            // Создаем новый объект с учетом метрической системы
-            const newObj: PlainSVGObjectDataWithRotation = {
-                id: newId,
-                label: item.label,
-                coordinates: {
-                    x,
-                    y,
-                    width: 1.0 * METERS_TO_PIXELS, // 1 метр по умолчанию
-                    height: 0.5 * METERS_TO_PIXELS // 0.5 метра по умолчанию
-                },
-                rotation: 0,
-                style: item.style,
-                material: item.material,
-                color: colors[normalizeForColorDictionary(item.label)] || item.color,
-                furnitureType: normalizeForColorDictionary(item.label)
-            };
+            // Размеры по умолчанию
+            const defaultWidth = 1.0 * METERS_TO_PIXELS;
+            const defaultHeight = 0.5 * METERS_TO_PIXELS;
 
-            setObjects(prev => [...prev, newObj]);
-            setSelectedObjectId(newId);
+            // Проверяем, будет ли новый объект внутри комнаты
+            if (isInsideRoom(x, y, defaultWidth, defaultHeight, 0)) {
+                // Создаем новый объект
+                const newObj: PlainSVGObjectDataWithRotation = {
+                    id: newId,
+                    label: item.label,
+                    coordinates: {
+                        x,
+                        y,
+                        width: defaultWidth,
+                        height: defaultHeight
+                    },
+                    rotation: 0,
+                    style: item.style,
+                    material: item.material,
+                    color: colors[normalizeForColorDictionary(item.label)] || item.color,
+                    furnitureType: normalizeForColorDictionary(item.label)
+                };
 
-            const updatedObjects = [...objects, newObj].map(obj => convertToJSON(obj));
-            updateJson(JSON.stringify(updatedObjects, null, 2));
+                setObjects(prev => [...prev, newObj]);
+                setSelectedObjectId(newId);
+
+                const updatedObjects = [...objects, newObj].map(obj => convertToJSON(obj));
+                updateJson(JSON.stringify(updatedObjects, null, 2));
+            }
         },
     }), [objects]);
 
@@ -391,8 +450,8 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
                 <defs>
                     <clipPath id="room-clip">
                         <rect
-                            x={initialViewBox.minX}
-                            y={initialViewBox.minY}
+                            x={viewBox.minX}
+                            y={viewBox.minY}
                             width={SCALED_WIDTH}
                             height={SCALED_HEIGHT}
                         />
@@ -453,7 +512,7 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
                     y={LABEL_SPACE}
                     width={SCALED_WIDTH}
                     height={SCALED_HEIGHT}
-                    viewBox={`${initialViewBox.minX} ${initialViewBox.minY} ${SCALED_WIDTH} ${SCALED_HEIGHT}`}
+                    viewBox={`${viewBox.minX} ${viewBox.minY} ${SCALED_WIDTH} ${SCALED_HEIGHT}`}
                     preserveAspectRatio="xMidYMid meet"
                     onClick={handleSvgClick}
                     style={{ clipPath: "url(#room-clip)" }}
@@ -462,15 +521,15 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
                     <rect
                         x={0}
                         y={0}
-                        width={BASE_ROOM_WIDTH}
-                        height={BASE_ROOM_HEIGHT}
+                        width={ROOM_WIDTH}
+                        height={ROOM_HEIGHT}
                         fill="white"
                     />
                     <rect
                         x={0}
                         y={0}
-                        width={BASE_ROOM_WIDTH}
-                        height={BASE_ROOM_HEIGHT}
+                        width={ROOM_WIDTH}
+                        height={ROOM_HEIGHT}
                         fill="none"
                         stroke="black"
                         strokeWidth={4}
@@ -482,8 +541,8 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
                             key={obj.id}
                             obj={obj}
                             index={index}
-                            roomHeight={BASE_ROOM_HEIGHT}
-                            roomWidth={BASE_ROOM_WIDTH}
+                            roomHeight={ROOM_HEIGHT}
+                            roomWidth={ROOM_WIDTH}
                             bounds={bounds}
                             onMove={moveObject}
                             onUpdate={updateObject}
@@ -492,6 +551,7 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
                             onEndAction={handleEndAction}
                             isSelected={selectedObjectId === obj.id}
                             getMouseSVGCoordinates={getMouseSVGCoordinates}
+                            isInsideRoom={isInsideRoom}
                         />
                     ))}
                 </svg>
@@ -526,6 +586,7 @@ const DraggableObject: React.FC<{
     onEndAction: (id: string) => void;
     isSelected: boolean;
     getMouseSVGCoordinates: (clientX: number, clientY: number) => { x: number; y: number };
+    isInsideRoom: (x: number, y: number, width: number, height: number, rotation: number) => boolean;
 }> = ({
     obj,
     bounds,
@@ -535,7 +596,8 @@ const DraggableObject: React.FC<{
     onDeselect,
     onEndAction,
     isSelected,
-    getMouseSVGCoordinates
+    getMouseSVGCoordinates,
+    isInsideRoom
 }) => {
         const ref = useRef<SVGGElement>(null);
 
@@ -555,13 +617,10 @@ const DraggableObject: React.FC<{
                 let newX = currentX - offsetX;
                 let newY = currentY - offsetY;
 
-                const halfWidth = obj.coordinates.width / 2;
-                const halfHeight = obj.coordinates.height / 2;
-
-                newX = Math.max(bounds.minX + halfWidth, Math.min(bounds.maxX - halfWidth, newX));
-                newY = Math.max(bounds.minY + halfHeight, Math.min(bounds.maxY - halfHeight, newY));
-
-                onMove(obj.id, newX, newY);
+                // Проверяем, находится ли объект полностью внутри комнаты
+                if (isInsideRoom(newX, newY, obj.coordinates.width, obj.coordinates.height, obj.rotation)) {
+                    onMove(obj.id, newX, newY);
+                }
             };
 
             const handleMouseUp = () => {
@@ -583,6 +642,7 @@ const DraggableObject: React.FC<{
             y: number;
             mouseX: number;
             mouseY: number;
+            rotation: number;
         }) => {
             const { x: currentX, y: currentY } = getMouseSVGCoordinates(e.clientX, e.clientY);
 
@@ -623,21 +683,17 @@ const DraggableObject: React.FC<{
                     break;
             }
 
-            // Проверяем границы
-            const halfWidth = newWidth / 2;
-            const halfHeight = newHeight / 2;
-
-            newX = Math.max(bounds.minX + halfWidth, Math.min(bounds.maxX - halfWidth, newX));
-            newY = Math.max(bounds.minY + halfHeight, Math.min(bounds.maxY - halfHeight, newY));
-
-            onUpdate(obj.id, {
-                coordinates: {
-                    width: newWidth,
-                    height: newHeight,
-                    x: newX,
-                    y: newY
-                }
-            });
+            // Проверяем, находится ли объект после изменения размера внутри комнаты
+            if (isInsideRoom(newX, newY, newWidth, newHeight, initialData.rotation)) {
+                onUpdate(obj.id, {
+                    coordinates: {
+                        width: newWidth,
+                        height: newHeight,
+                        x: newX,
+                        y: newY
+                    }
+                });
+            }
         };
 
         // Вращение
@@ -646,6 +702,8 @@ const DraggableObject: React.FC<{
             centerX: number;
             centerY: number;
             startAngle: number;
+            width: number;
+            height: number;
         }) => {
             const { x: currentX, y: currentY } = getMouseSVGCoordinates(e.clientX, e.clientY);
 
@@ -657,7 +715,16 @@ const DraggableObject: React.FC<{
             let newRotation = initialData.rotation + (currentAngle - initialData.startAngle);
             newRotation = ((newRotation % 360) + 360) % 360;
 
-            onUpdate(obj.id, { rotation: newRotation });
+            // Проверяем, находится ли объект после вращения внутри комнаты
+            if (isInsideRoom(
+                initialData.centerX,
+                initialData.centerY,
+                initialData.width,
+                initialData.height,
+                newRotation
+            )) {
+                onUpdate(obj.id, { rotation: newRotation });
+            }
         };
 
         const x = obj.coordinates.x - obj.coordinates.width / 2;
@@ -704,7 +771,9 @@ const DraggableObject: React.FC<{
                         <CloseButton
                             x={x + obj.coordinates.width + 20}
                             y={y - 20}
-                            onClick={onDeselect}
+                            onClick={(e) => {
+                                onDeselect();
+                            }}
                         />
 
                         {/* Углы для изменения размера */}
@@ -731,7 +800,8 @@ const DraggableObject: React.FC<{
                                             x: obj.coordinates.x,
                                             y: obj.coordinates.y,
                                             mouseX: getMouseSVGCoordinates(e.clientX, e.clientY).x,
-                                            mouseY: getMouseSVGCoordinates(e.clientX, e.clientY).y
+                                            mouseY: getMouseSVGCoordinates(e.clientX, e.clientY).y,
+                                            rotation: obj.rotation
                                         };
 
                                         const handleMouseMove = (moveEvent: MouseEvent) => {
@@ -780,7 +850,9 @@ const DraggableObject: React.FC<{
                                     rotation: obj.rotation,
                                     centerX,
                                     centerY,
-                                    startAngle
+                                    startAngle,
+                                    width: obj.coordinates.width,
+                                    height: obj.coordinates.height
                                 };
 
                                 const handleMouseMove = (moveEvent: MouseEvent) => {
@@ -802,3 +874,4 @@ const DraggableObject: React.FC<{
             </g>
         );
     };
+
