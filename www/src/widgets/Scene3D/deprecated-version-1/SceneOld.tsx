@@ -84,20 +84,20 @@ const roomDimensions = {
 const Room: React.FC = () => {
     const { length, width, height } = roomDimensions;
     const wallColor = "rgb(70, 90, 65)"; // Еще светлее
-    const floorColor = "rgb(20, 30, 40)"; // Еще светлее
+    const floorColor = "#696f6f"; // Еще светлее
 
     return (
         <>
             {/* Пол */}
             <mesh receiveShadow position={[length / 2, width / 2, 0]} rotation={[0, 0, -Math.PI]}>
                 <planeGeometry args={[length, width]} />
-                <meshStandardMaterial color={floorColor} />
+                <meshStandardMaterial color={"lightgray"} />
             </mesh>
 
             {/* Потолок */}
             <mesh receiveShadow position={[length / 2, width / 2, height]} rotation={[0, 0, -Math.PI]}>
                 <planeGeometry args={[length, width]} />
-                <meshStandardMaterial color="lightgray" side={THREE.BackSide} />
+                <meshStandardMaterial color={floorColor} side={THREE.BackSide} />
             </mesh>
 
             {/* Стена слева */}
