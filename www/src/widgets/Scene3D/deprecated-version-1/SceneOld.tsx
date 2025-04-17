@@ -142,7 +142,7 @@ export const Scene: React.FC = () => {
             {SETTINGS.TGLBModels.map(obj => (
                 <Model
                     key={obj.new_object_id}
-                    modelPath={`${SETTINGS.assetsPathPrefix}/${obj.new_object_id}.glb`}
+                    modelPath={`${SETTINGS.assetsPathPrefix}/${obj.new_object_id}_processed.glb`}
                     position={[obj.position.x, obj.position.y, obj.position.z]}
                     rotation={SETTINGS.rotationSettings[obj.new_object_id]}
                     size_in_meters={obj.size_in_meters}

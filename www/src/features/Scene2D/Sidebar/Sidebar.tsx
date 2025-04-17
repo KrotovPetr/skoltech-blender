@@ -5,9 +5,7 @@ import { Flex, SegmentedRadioGroup } from "@gravity-ui/uikit";
 import block from "bem-cn-lite";
 import './Sidebar.scss';
 
-
 const b = block('sidebar');
-
 
 export const Sidebar: React.FC<{
   onLoadScene: (sceneData: any) => void;
@@ -16,7 +14,6 @@ export const Sidebar: React.FC<{
   sceneJSON: string;
 }> = ({ onLoadScene, onGenerateScene, onUpdateFromJSON, sceneJSON }) => {
   const [activeTab, setActiveTab] = useState("furniture"); // "furniture", "scenes", "generate", "json"
-
 
   return (
     <Flex
@@ -27,7 +24,7 @@ export const Sidebar: React.FC<{
         <SegmentedRadioGroup.Option value="furniture" content="Мебель" />
         <SegmentedRadioGroup.Option value="scenes" content="Готовые решения" />
         {/* <SegmentedRadioGroup.Option value="generate" content="Генерация" /> */}
-        <SegmentedRadioGroup.Option value="sson" content="Json" />
+        <SegmentedRadioGroup.Option value="json" content="Json" />
       </SegmentedRadioGroup>
 
       <Flex direction="column" className={b('body')}>

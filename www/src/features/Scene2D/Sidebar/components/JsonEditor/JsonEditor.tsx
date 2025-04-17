@@ -1,5 +1,9 @@
 import { Editor, Monaco } from "@monaco-editor/react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { Text, Button, Flex, useToaster } from "@gravity-ui/uikit";
+import block from "bem-cn-lite";
+
+const b = block('json-editor');
 
 interface JsonEditorProps {
     onUpdateFromJSON: (jsonData: any) => void;
@@ -7,30 +11,93 @@ interface JsonEditorProps {
 }
 
 export const JsonEditor = ({ onUpdateFromJSON, sceneJSON }: JsonEditorProps) => {
+    const { add } = useToaster();
     const editorRef = useRef<any>(null);
     const [editorErrors, setEditorErrors] = useState<string | null>(null);
+    const [currentValue, setCurrentValue] = useState<string>(sceneJSON || '{}');
+    const [autoApply, setAutoApply] = useState<boolean>(true);
+    const [showToast, setShowToast] = useState<boolean>(false);
+    const [toastMessage, setToastMessage] = useState<string>("");
+    const timeoutRef = useRef<any>(null);
+
+    useEffect(() => {
+        if (editorErrors) {
+            add({
+                name: "Warning",
+                title: editorErrors,
+                theme: "warning"
+            });
+        }
+
+    }, [editorErrors])
+
+    // Обновляем editor когда приходят новые данные из props
+    useEffect(() => {
+        if (sceneJSON && sceneJSON !== currentValue) {
+            setCurrentValue(sceneJSON);
+            if (editorRef.current) {
+                editorRef.current.setValue(sceneJSON);
+            }
+        }
+    }, [sceneJSON]);
+
+    // Показываем уведомление с таймером
+    const showNotification = (message: string, isError = false) => {
+        setToastMessage(message);
+        setShowToast(true);
+
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+
+        timeoutRef.current = setTimeout(() => {
+            setShowToast(false);
+        }, 3000);
+    };
+
+    // Очищаем таймер при размонтировании
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, []);
 
     // Обработчик изменений в Monaco Editor
     const handleEditorChange = (value: string | undefined) => {
         if (!value) return;
+        setCurrentValue(value);
 
-        try {
-            const sceneData = JSON.parse(value);
+        // Если включен автоматический режим, применяем изменения сразу
+        if (autoApply) {
+            try {
+                const sceneData = JSON.parse(value);
 
-            // Валидация данных
-            if (!sceneData.objects || !Array.isArray(sceneData.objects)) {
-                setEditorErrors("Неверный формат данных: objects должен быть массивом");
-                return;
+                // Проверяем валидность JSON
+                if (!sceneData.objects || !Array.isArray(sceneData.objects)) {
+                    setEditorErrors("Неверный формат данных: objects должен быть массивом");
+                    return;
+                }
+
+                // Применяем изменения
+                onUpdateFromJSON(sceneData);
+                setEditorErrors(null);
+                add({
+                    name: "Success",
+                    title: "Изменения успешно применены",
+                    theme: "success"
+                });
+                showNotification("JSON успешно применен");
+            } catch (e) {
+                const errorMessage = "Ошибка парсинга JSON: " + (e as Error).message;
+                setEditorErrors(errorMessage);
+                showNotification(errorMessage, true);
             }
-
-            setEditorErrors(null);
-        } catch (e) {
-            setEditorErrors("Ошибка парсинга JSON: " + (e as Error).message);
         }
+    };
 
-    }
-
-    // Применение изменений из редактора
+    // Применение изменений из редактора вручную
     const handleApplyJSON = () => {
         if (editorRef.current) {
             try {
@@ -38,8 +105,16 @@ export const JsonEditor = ({ onUpdateFromJSON, sceneJSON }: JsonEditorProps) => 
                 const sceneData = JSON.parse(value);
                 onUpdateFromJSON(sceneData);
                 setEditorErrors(null);
+                add({
+                    name: "Success",
+                    title: "Изменения успешно применены",
+                    theme: "success"
+                });
+                showNotification("JSON успешно применен");
             } catch (e) {
-                setEditorErrors("Ошибка парсинга JSON: " + (e as Error).message);
+                const errorMessage = "Ошибка парсинга JSON: " + (e as Error).message;
+                setEditorErrors(errorMessage);
+                showNotification(errorMessage, true);
             }
         }
     };
@@ -55,6 +130,24 @@ export const JsonEditor = ({ onUpdateFromJSON, sceneJSON }: JsonEditorProps) => 
             document.body.appendChild(downloadAnchorNode);
             downloadAnchorNode.click();
             downloadAnchorNode.remove();
+            showNotification("JSON файл скачан");
+        }
+    };
+
+    // Функция для форматирования JSON
+    const handleFormatJSON = () => {
+        if (editorRef.current) {
+            try {
+                const value = editorRef.current.getValue();
+                const parsed = JSON.parse(value);
+                const formatted = JSON.stringify(parsed, null, 2);
+                editorRef.current.setValue(formatted);
+                showNotification("JSON отформатирован");
+            } catch (e) {
+                const errorMessage = "Ошибка форматирования JSON: " + (e as Error).message;
+                setEditorErrors(errorMessage);
+                showNotification(errorMessage, true);
+            }
         }
     };
 
@@ -62,7 +155,17 @@ export const JsonEditor = ({ onUpdateFromJSON, sceneJSON }: JsonEditorProps) => 
     const handleEditorDidMount = (editor: any, monaco: Monaco) => {
         editorRef.current = editor;
 
-        // Настройка автоформатирования
+        // Если есть начальные данные, загрузим их
+        if (sceneJSON) {
+            editor.setValue(sceneJSON);
+        }
+
+        // Добавим автоформатирование при Shift+Alt+F
+        editor.addCommand(monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.KeyF, () => {
+            handleFormatJSON();
+        });
+
+        // Настройка автоформатирования для массива объектов
         monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
             validate: true,
             schemas: [
@@ -70,157 +173,122 @@ export const JsonEditor = ({ onUpdateFromJSON, sceneJSON }: JsonEditorProps) => 
                     uri: "http://myserver/scene-schema.json",
                     fileMatch: ["*"],
                     schema: {
-                        type: "object",
-                        properties: {
-                            roomDimensions: {
-                                type: "object",
-                                properties: {
-                                    width: { type: "number" },
-                                    height: { type: "number" }
-                                }
-                            },
-                            objects: {
-                                type: "array",
-                                items: {
+                        type: "array",
+                        items: {
+                            oneOf: [
+                                // Первый элемент - размеры комнаты
+                                {
                                     type: "object",
                                     properties: {
-                                        id: { type: "string" },
-                                        label: { type: "string" },
-                                        coordinates: {
+                                        room_dimensions: {
+                                            type: "array",
+                                            items: { type: "number" },
+                                            minItems: 3,
+                                            maxItems: 3
+                                        }
+                                    },
+                                    required: ["room_dimensions"]
+                                },
+                                // Последующие элементы - объекты мебели
+                                {
+                                    type: "object",
+                                    properties: {
+                                        new_object_id: { type: "string" },
+                                        size_in_meters: {
+                                            type: "object",
+                                            properties: {
+                                                length: { type: "number" },
+                                                width: { type: "number" },
+                                                height: { type: "number" }
+                                            },
+                                            required: ["length", "width", "height"]
+                                        },
+                                        position: {
                                             type: "object",
                                             properties: {
                                                 x: { type: "number" },
                                                 y: { type: "number" },
-                                                width: { type: "number" },
-                                                height: { type: "number" }
-                                            }
+                                                z: { type: "number" }
+                                            },
+                                            required: ["x", "y", "z"]
                                         },
-                                        rotation: { type: "number" }
-                                    }
+                                        rotation_z: { type: "number" },
+                                        style: { type: "string" },
+                                        material: { type: "string" },
+                                        color: { type: "string" }
+                                    },
+                                    required: ["new_object_id", "size_in_meters", "position", "rotation_z"]
                                 }
-                            }
-                        }
+                            ]
+                        },
+                        minItems: 1
                     }
                 }
             ]
         });
     };
 
+    return (
+        <Flex className={b()} direction={"column"} gap={2} style={{ padding: "10px 0" }}>
 
+            {/* {editorErrors && (
+                <Alert theme="warning" title="Warning" message={editorErrors} />
+            )} */}
 
-    // // Обработчик изменений в Monaco Editor
-    // const handleEditorChange = (value: string | undefined) => {
-    //     if (!value) return;
+            <Flex gap="2" alignItems="center" style={{ marginBottom: '10px' }}>
+                <input
+                    type="checkbox"
+                    id="autoApply"
+                    checked={autoApply}
+                    onChange={() => setAutoApply(!autoApply)}
+                />
+                <label htmlFor="autoApply">Автоматически применять изменения</label>
+            </Flex>
+            <Flex gap={2}>
+                <Button
+                    view="action"
+                    onClick={handleApplyJSON}
+                    className={b('button')}
+                    disabled={autoApply}
+                >
+                    Применить
+                </Button>
+                <Button
+                    view="normal"
+                    onClick={handleFormatJSON}
+                    className={b('button')}
+                >
+                    Форматировать
+                </Button>
+                <Button
+                    view="normal"
+                    onClick={handleDownloadJSON}
+                    className={b('button')}
+                >
+                    Скачать JSON
+                </Button>
+            </Flex>
 
-    //     try {
-    //         const sceneData = JSON.parse(value);
-
-    //         // Валидация данных
-    //         if (!Array.isArray(sceneData.objects)) {
-    //             setEditorErrors("Неверный формат данных: objects должен быть массивом");
-    //             return;
-    //         }
-
-    //         // Проверяем каждый объект на валидность
-    //         for (const obj of sceneData.objects) {
-    //             if (!obj.coordinates ||
-    //                 typeof obj.coordinates.x !== 'number' ||
-    //                 typeof obj.coordinates.y !== 'number' ||
-    //                 typeof obj.coordinates.width !== 'number' ||
-    //                 typeof obj.coordinates.height !== 'number') {
-    //                 setEditorErrors(`Неверный формат координат для объекта ${obj.id}`);
-    //                 return;
-    //             }
-
-    //             if (typeof obj.rotation !== 'number') {
-    //                 setEditorErrors(`Неверный формат угла поворота для объекта ${obj.id}`);
-    //                 return;
-    //             }
-    //         }
-
-    //         // Применяем изменения
-    //         setObjects(sceneData.objects);
-    //         if (sceneData.selectedObjectId) {
-    //             setSelectedObjectId(sceneData.selectedObjectId);
-    //         }
-
-    //         setEditorErrors(null);
-    //     } catch (e) {
-    //         setEditorErrors("Ошибка парсинга JSON: " + (e as Error).message);
-    //     }
-    // };
-
-    return (<div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-        <h3 style={{
-            fontSize: "16px",
-            padding: "5px 0",
-            borderBottom: "1px solid #ddd",
-            marginBottom: "10px"
-        }}>
-            JSON редактор
-        </h3>
-
-        {editorErrors && (
-            <div style={{
-                color: "white",
-                backgroundColor: "#FF5555",
-                padding: "8px 12px",
-                borderRadius: "4px",
-                marginBottom: "10px",
-                fontSize: "12px"
-            }}>
-                {editorErrors}
-            </div>
-        )}
-
-        <div style={{ flex: 1, border: "1px solid #ccc", borderRadius: "4px", overflow: "hidden", marginBottom: "10px" }}>
-            <Editor
-                height="100%"
-                defaultLanguage="json"
-                value={sceneJSON}
-                onChange={handleEditorChange}
-                options={{
-                    minimap: { enabled: false },
-                    lineNumbers: "on",
-                    scrollBeyondLastLine: false,
-                    wordWrap: "on",
-                    wrappingIndent: "indent"
-                }}
-                onMount={handleEditorDidMount}
-            />
-        </div>
-
-        <div style={{ display: "flex", gap: "10px" }}>
-            <button
-                onClick={handleApplyJSON}
-                style={{
-                    flex: 1,
-                    padding: "8px 12px",
-                    backgroundColor: "#4CAF50",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    fontSize: "14px"
-                }}
-            >
-                Применить
-            </button>
-            <button
-                onClick={handleDownloadJSON}
-                style={{
-                    flex: 1,
-                    padding: "8px 12px",
-                    backgroundColor: "#2196F3",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    fontSize: "14px"
-                }}
-            >
-                Скачать JSON
-            </button>
-        </div>
-    </div>)
+            <Flex className={b('editor-container')} style={{ height: "400px", marginBottom: "16px" }}>
+                <Editor
+                    height="85vh"
+                    defaultLanguage="json"
+                    value={currentValue}
+                    onChange={handleEditorChange}
+                    options={{
+                        minimap: { enabled: false },
+                        lineNumbers: "on",
+                        scrollBeyondLastLine: false,
+                        wordWrap: "on",
+                        wrappingIndent: "indent",
+                        automaticLayout: true,
+                        formatOnPaste: true,
+                        formatOnType: false,
+                        tabSize: 2
+                    }}
+                    onMount={handleEditorDidMount}
+                />
+            </Flex>
+        </Flex>
+    );
 }

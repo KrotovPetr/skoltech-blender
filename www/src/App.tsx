@@ -1,23 +1,18 @@
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import { Home, Model } from './pages';
+import { Toaster, ToasterComponent, ToasterProvider } from '@gravity-ui/uikit';
 
 export const App = () => {
-  const navigate = useNavigate();
 
-  // useEffect(() => {
-  // const storedObjectString = localStorage.getItem('design') ?? '{}';
-  // const storedObject = JSON.parse(storedObjectString);
-
-  //   if (storedObject.description) {
-  //     navigate('/model');
-  //   }
-  // }, [navigate]);
-
+  const toaster = new Toaster();
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/model/*" element={<Model />} />
-    </Routes>
+    <ToasterProvider toaster={toaster}>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/model/*" element={<Model />} />
+      </Routes>
+      <ToasterComponent className="optional additional classes" hasPortal={true} />
+    </ToasterProvider>
   );
 };
