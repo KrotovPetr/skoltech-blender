@@ -251,6 +251,11 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
         maxY: ROOM_HEIGHT
     };
 
+    useEffect(() => {
+        const convertedObjects = initialObjects.map(convertToSVGObject);
+        setObjects(convertedObjects);
+    }, [initialObjects]);
+
     // Преобразование координат
     const getMouseSVGCoordinates = (clientX: number, clientY: number) => {
         if (!roomSvgRef.current) return { x: 0, y: 0 };
