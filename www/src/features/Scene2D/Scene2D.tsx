@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useDrop } from "react-dnd";
+import { DraggableObject } from "./DraggableObject";
 
 // Интерфейсы для входных данных
 interface SizeInMeters {
@@ -173,51 +174,6 @@ const convertToJSON = (svgObject: PlainSVGObjectDataWithRotation): InputObject =
     };
 };
 
-// Компонент кнопки закрытия
-const CloseButton: React.FC<{
-    x: number;
-    y: number;
-    onClick: () => void;
-}> = ({ x, y, onClick }) => {
-    return (
-        <g
-            transform={`translate(${x}, ${y})`}
-            onClick={(e) => {
-                e.stopPropagation();
-                onClick();
-            }}
-            style={{ cursor: 'pointer' }}
-        >
-            <circle
-                cx={0}
-                cy={0}
-                r={12}
-                fill="#FF5555"
-                stroke="#FFFFFF"
-                strokeWidth={2}
-            />
-            <line
-                x1={-6}
-                y1={-6}
-                x2={6}
-                y2={6}
-                stroke="#FFFFFF"
-                strokeWidth={2}
-                strokeLinecap="round"
-            />
-            <line
-                x1={-6}
-                y1={6}
-                x2={6}
-                y2={-6}
-                stroke="#FFFFFF"
-                strokeWidth={2}
-                strokeLinecap="round"
-            />
-        </g>
-    );
-};
-
 export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJson }) => {
     // Инициализация viewBox
     const [viewBox] = useState({
@@ -378,7 +334,13 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
 
     const handleEndAction = (id: string) => {
         const updatedObjects = objects.map(obj => convertToJSON(obj));
-        updateJson(JSON.stringify(updatedObjects, null, 2));
+        updateJson(JSON.stringify([{
+            "room_dimensions": [
+                8.3,
+                10.96,
+                2.5
+            ]
+        }, ...updatedObjects], null, 2));
     };
 
     const handleSvgClick = (e: React.MouseEvent) => {
@@ -387,20 +349,38 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
         }
     };
 
-    // Настройка Drop
     const [, drop] = useDrop(() => ({
         accept: "object",
         drop: (item: { label: string, style: string, material: string, color: string }, monitor) => {
+            // Проверяем, было ли событие drop уже обработано в дочернем компоненте
+            if (monitor.didDrop()) {
+                return; // Если событие уже обработано, ничего не делаем
+            }
+
             const dropOffset = monitor.getClientOffset();
             if (!dropOffset || !roomSvgRef.current) return;
 
             const { x, y } = getMouseSVGCoordinates(dropOffset.x, dropOffset.y);
-            const newId = `${item.label}-${nextIdRef.current}`;
+            const normalizedLabel = item.label.toLowerCase().replace(/\s+/g, '_');
+            const newId = `${normalizedLabel}_${nextIdRef.current}`;
             nextIdRef.current += 1;
 
-            // Размеры по умолчанию
-            const defaultWidth = 1.0 * METERS_TO_PIXELS;
-            const defaultHeight = 0.5 * METERS_TO_PIXELS;
+            // Размеры по умолчанию в зависимости от типа предмета
+            let defaultWidth = 1.0 * METERS_TO_PIXELS;
+            let defaultHeight = 0.5 * METERS_TO_PIXELS;
+
+            // Устанавливаем более подходящие размеры для разных типов мебели
+            const normalizedType = normalizeForColorDictionary(item.label);
+            if (normalizedType === "sofa") {
+                defaultWidth = 2.0 * METERS_TO_PIXELS;
+                defaultHeight = 0.8 * METERS_TO_PIXELS;
+            } else if (normalizedType === "armchair") {
+                defaultWidth = 0.9 * METERS_TO_PIXELS;
+                defaultHeight = 0.9 * METERS_TO_PIXELS;
+            } else if (normalizedType === "coffee table") {
+                defaultWidth = 1.2 * METERS_TO_PIXELS;
+                defaultHeight = 0.7 * METERS_TO_PIXELS;
+            }
 
             // Проверяем, будет ли новый объект внутри комнаты
             if (isInsideRoom(x, y, defaultWidth, defaultHeight, 0)) {
@@ -415,20 +395,47 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
                         height: defaultHeight
                     },
                     rotation: 0,
-                    style: item.style,
-                    material: item.material,
-                    color: colors[normalizeForColorDictionary(item.label)] || item.color,
-                    furnitureType: normalizeForColorDictionary(item.label)
+                    style: item.style || "Modern",
+                    material: item.material || "wood",
+                    color: colors[normalizedType] || item.color || "#CCCCCC",
+                    furnitureType: normalizedType
                 };
 
-                setObjects(prev => [...prev, newObj]);
-                setSelectedObjectId(newId);
+                // Обновляем состояние с новым объектом
+                setObjects(prevObjects => {
+                    const newObjects = [...prevObjects, newObj];
 
-                const updatedObjects = [...objects, newObj].map(obj => convertToJSON(obj));
-                updateJson(JSON.stringify(updatedObjects, null, 2));
+                    // Преобразуем обновленный список объектов в JSON для обновления
+                    const jsonObjects = newObjects.map(obj => convertToJSON(obj));
+
+                    // Вызываем updateJson с обновленными данными
+                    updateJson(JSON.stringify([{
+                        "room_dimensions": [
+                            8.3,
+                            10.96,
+                            2.5
+                        ]
+                    }, ...jsonObjects], null, 2));
+
+                    return newObjects;
+                });
+
+                setSelectedObjectId(newId);
             }
         },
-    }), [objects]);
+        // Дополнительная опция для работы с вложенными drop-целями
+        canDrop: (item, monitor) => {
+            const dropOffset = monitor.getClientOffset();
+            if (!dropOffset || !roomSvgRef.current) return false;
+
+            const { x, y } = getMouseSVGCoordinates(dropOffset.x, dropOffset.y);
+
+            // Проверяем, находится ли точка drop в пределах комнаты
+            return x >= bounds.minX && x <= bounds.maxX &&
+                y >= bounds.minY && y <= bounds.maxY;
+        }
+    }), [objects, isInsideRoom, getMouseSVGCoordinates]);
+
 
     // Эффекты
     useEffect(() => {
@@ -439,7 +446,13 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
 
     useEffect(() => {
         const updatedObjects = objects.map(obj => convertToJSON(obj));
-        updateJson(JSON.stringify(updatedObjects, null, 2));
+        updateJson(JSON.stringify([{
+            "room_dimensions": [
+                8.3,
+                10.96,
+                2.5
+            ]
+        }, ...updatedObjects], null, 2));
     }, [objects]);
 
     // Рендер
@@ -511,6 +524,7 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
                     Правая стена
                 </text>
                 {/* Внутренний SVG */}
+                // В компоненте RoomLayout, в SVG с объектами мебели
                 <svg
                     ref={roomSvgRef}
                     x={LABEL_SPACE}
@@ -520,7 +534,7 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
                     viewBox={`${viewBox.minX} ${viewBox.minY} ${SCALED_WIDTH} ${SCALED_HEIGHT}`}
                     preserveAspectRatio="xMidYMid meet"
                     onClick={handleSvgClick}
-                    style={{ clipPath: "url(#room-clip)" }}
+                    style={{ clipPath: "url(#room-clip)", pointerEvents: "all" }}
                 >
                     {/* Фон и рамка комнаты */}
                     <rect
@@ -529,6 +543,7 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
                         width={ROOM_WIDTH}
                         height={ROOM_HEIGHT}
                         fill="white"
+                        pointerEvents="all" // Этот прямоугольник должен принимать события drop
                     />
                     <rect
                         x={0}
@@ -538,6 +553,7 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
                         fill="none"
                         stroke="black"
                         strokeWidth={4}
+                        pointerEvents="none" // Рамка не должна перехватывать события
                     />
 
                     {/* Объекты */}
@@ -576,307 +592,3 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
         </div>
     );
 };
-
-// Компонент DraggableObject
-const DraggableObject: React.FC<{
-    obj: PlainSVGObjectDataWithRotation;
-    index: number;
-    roomHeight: number;
-    roomWidth: number;
-    bounds: { minX: number; maxX: number; minY: number; maxY: number };
-    onMove: (id: string, x: number, y: number) => void;
-    onUpdate: (id: string, updates: Partial<PlainSVGObjectDataWithRotation>) => void;
-    onSelect: (id: string) => void;
-    onDeselect: () => void;
-    onEndAction: (id: string) => void;
-    isSelected: boolean;
-    getMouseSVGCoordinates: (clientX: number, clientY: number) => { x: number; y: number };
-    isInsideRoom: (x: number, y: number, width: number, height: number, rotation: number) => boolean;
-}> = ({
-    obj,
-    bounds,
-    onMove,
-    onUpdate,
-    onSelect,
-    onDeselect,
-    onEndAction,
-    isSelected,
-    getMouseSVGCoordinates,
-    isInsideRoom
-}) => {
-        const ref = useRef<SVGGElement>(null);
-
-        // Перемещение объекта
-        const handleMouseDown = (e: React.MouseEvent) => {
-            if (e.button !== 0) return;
-            e.stopPropagation();
-
-            const startCoords = { ...obj.coordinates };
-            const { x: startX, y: startY } = getMouseSVGCoordinates(e.clientX, e.clientY);
-            const offsetX = startX - obj.coordinates.x;
-            const offsetY = startY - obj.coordinates.y;
-
-            const handleMouseMove = (moveEvent: MouseEvent) => {
-                const { x: currentX, y: currentY } = getMouseSVGCoordinates(moveEvent.clientX, moveEvent.clientY);
-
-                let newX = currentX - offsetX;
-                let newY = currentY - offsetY;
-
-                // Проверяем, находится ли объект полностью внутри комнаты
-                if (isInsideRoom(newX, newY, obj.coordinates.width, obj.coordinates.height, obj.rotation)) {
-                    onMove(obj.id, newX, newY);
-                }
-            };
-
-            const handleMouseUp = () => {
-                document.removeEventListener('mousemove', handleMouseMove);
-                document.removeEventListener('mouseup', handleMouseUp);
-                onEndAction(obj.id);
-            };
-
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', handleMouseUp);
-            onSelect(obj.id);
-        };
-
-        // Изменение размера
-        const handleResize = (e: MouseEvent, corner: string, initialData: {
-            width: number;
-            height: number;
-            x: number;
-            y: number;
-            mouseX: number;
-            mouseY: number;
-            rotation: number;
-        }) => {
-            const { x: currentX, y: currentY } = getMouseSVGCoordinates(e.clientX, e.clientY);
-
-            const dx = currentX - initialData.mouseX;
-            const dy = currentY - initialData.mouseY;
-
-            let newWidth = initialData.width;
-            let newHeight = initialData.height;
-            let newX = initialData.x;
-            let newY = initialData.y;
-
-            const minSize = 20; // Минимальный размер в пикселях
-
-            switch (corner) {
-                case 'topLeft':
-                    newWidth = Math.max(minSize, initialData.width - dx);
-                    newHeight = Math.max(minSize, initialData.height - dy);
-                    newX = initialData.x - (dx / 2);
-                    newY = initialData.y - (dy / 2);
-                    break;
-                case 'topRight':
-                    newWidth = Math.max(minSize, initialData.width + dx);
-                    newHeight = Math.max(minSize, initialData.height - dy);
-                    newX = initialData.x + (dx / 2);
-                    newY = initialData.y - (dy / 2);
-                    break;
-                case 'bottomLeft':
-                    newWidth = Math.max(minSize, initialData.width - dx);
-                    newHeight = Math.max(minSize, initialData.height + dy);
-                    newX = initialData.x - (dx / 2);
-                    newY = initialData.y + (dy / 2);
-                    break;
-                case 'bottomRight':
-                    newWidth = Math.max(minSize, initialData.width + dx);
-                    newHeight = Math.max(minSize, initialData.height + dy);
-                    newX = initialData.x + (dx / 2);
-                    newY = initialData.y + (dy / 2);
-                    break;
-            }
-
-            // Проверяем, находится ли объект после изменения размера внутри комнаты
-            if (isInsideRoom(newX, newY, newWidth, newHeight, initialData.rotation)) {
-                onUpdate(obj.id, {
-                    coordinates: {
-                        width: newWidth,
-                        height: newHeight,
-                        x: newX,
-                        y: newY
-                    }
-                });
-            }
-        };
-
-        // Вращение
-        const handleRotate = (e: MouseEvent, initialData: {
-            rotation: number;
-            centerX: number;
-            centerY: number;
-            startAngle: number;
-            width: number;
-            height: number;
-        }) => {
-            const { x: currentX, y: currentY } = getMouseSVGCoordinates(e.clientX, e.clientY);
-
-            const currentAngle = Math.atan2(
-                currentY - initialData.centerY,
-                currentX - initialData.centerX
-            ) * (180 / Math.PI);
-
-            let newRotation = initialData.rotation + (currentAngle - initialData.startAngle);
-            newRotation = ((newRotation % 360) + 360) % 360;
-
-            // Проверяем, находится ли объект после вращения внутри комнаты
-            if (isInsideRoom(
-                initialData.centerX,
-                initialData.centerY,
-                initialData.width,
-                initialData.height,
-                newRotation
-            )) {
-                onUpdate(obj.id, { rotation: newRotation });
-            }
-        };
-
-        const x = obj.coordinates.x - obj.coordinates.width / 2;
-        const y = obj.coordinates.y - obj.coordinates.height / 2;
-        const centerX = obj.coordinates.x;
-        const centerY = obj.coordinates.y;
-
-        return (
-            <g
-                ref={ref}
-                transform={`rotate(${-obj.rotation} ${centerX} ${centerY})`}
-                style={{ cursor: 'move' }}
-                onMouseDown={handleMouseDown}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    onSelect(obj.id);
-                }}
-            >
-                <rect
-                    x={x}
-                    y={y}
-                    width={obj.coordinates.width}
-                    height={obj.coordinates.height}
-                    fill={obj.color}
-                    fillOpacity={0.3}
-                    stroke={isSelected ? "#00FF00" : obj.color}
-                    strokeWidth={isSelected ? 3 : 2}
-                    strokeDasharray={isSelected ? "5,5" : "none"}
-                />
-                <text
-                    x={centerX}
-                    y={centerY}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    fill="black"
-                    fontSize="12"
-                    pointerEvents="none"
-                >
-                    {obj.furnitureType}
-                </text>
-
-                {isSelected && (
-                    <>
-                        <CloseButton
-                            x={x + obj.coordinates.width + 20}
-                            y={y - 20}
-                            onClick={(e) => {
-                                onDeselect();
-                            }}
-                        />
-
-                        {/* Углы для изменения размера */}
-                        {['topLeft', 'topRight', 'bottomLeft', 'bottomRight'].map((corner) => {
-                            const cornerX = corner.includes('Right') ? x + obj.coordinates.width : x;
-                            const cornerY = corner.includes('Bottom') ? y + obj.coordinates.height : y;
-                            const cursor = corner === 'topLeft' || corner === 'bottomRight' ? 'nwse-resize' : 'nesw-resize';
-
-                            return (
-                                <circle
-                                    key={corner}
-                                    cx={cornerX}
-                                    cy={cornerY}
-                                    r={6}
-                                    fill="white"
-                                    stroke="#00FF00"
-                                    strokeWidth={2}
-                                    cursor={cursor}
-                                    onMouseDown={(e) => {
-                                        e.stopPropagation();
-                                        const initialData = {
-                                            width: obj.coordinates.width,
-                                            height: obj.coordinates.height,
-                                            x: obj.coordinates.x,
-                                            y: obj.coordinates.y,
-                                            mouseX: getMouseSVGCoordinates(e.clientX, e.clientY).x,
-                                            mouseY: getMouseSVGCoordinates(e.clientX, e.clientY).y,
-                                            rotation: obj.rotation
-                                        };
-
-                                        const handleMouseMove = (moveEvent: MouseEvent) => {
-                                            handleResize(moveEvent, corner, initialData);
-                                        };
-
-                                        const handleMouseUp = () => {
-                                            document.removeEventListener('mousemove', handleMouseMove);
-                                            document.removeEventListener('mouseup', handleMouseUp);
-                                            onEndAction(obj.id);
-                                        };
-
-                                        document.addEventListener('mousemove', handleMouseMove);
-                                        document.addEventListener('mouseup', handleMouseUp);
-                                    }}
-                                />
-                            );
-                        })}
-
-                        {/* Контрол вращения */}
-                        <line
-                            x1={centerX}
-                            y1={y - 20}
-                            x2={centerX}
-                            y2={y}
-                            stroke="#00FF00"
-                            strokeWidth={2}
-                            pointerEvents="none"
-                        />
-                        <circle
-                            cx={centerX}
-                            cy={y - 20}
-                            r={8}
-                            fill="white"
-                            stroke="#00FF00"
-                            strokeWidth={2}
-                            cursor="grab"
-                            onMouseDown={(e) => {
-                                e.stopPropagation();
-                                const startAngle = Math.atan2(
-                                    getMouseSVGCoordinates(e.clientX, e.clientY).y - centerY,
-                                    getMouseSVGCoordinates(e.clientX, e.clientY).x - centerX
-                                ) * (180 / Math.PI);
-
-                                const initialData = {
-                                    rotation: obj.rotation,
-                                    centerX,
-                                    centerY,
-                                    startAngle,
-                                    width: obj.coordinates.width,
-                                    height: obj.coordinates.height
-                                };
-
-                                const handleMouseMove = (moveEvent: MouseEvent) => {
-                                    handleRotate(moveEvent, initialData);
-                                };
-
-                                const handleMouseUp = () => {
-                                    document.removeEventListener('mousemove', handleMouseMove);
-                                    document.removeEventListener('mouseup', handleMouseUp);
-                                    onEndAction(obj.id);
-                                };
-
-                                document.addEventListener('mousemove', handleMouseMove);
-                                document.addEventListener('mouseup', handleMouseUp);
-                            }}
-                        />
-                    </>
-                )}
-            </g>
-        );
-    };
-
