@@ -13,7 +13,7 @@ const b = block('comment');
 
 export const Message = ({ direction, text }: CommentProps) => {
     return (
-        <Flex className={b({ direction })} gap={2} alignItems="center">
+        <div className={b({ direction })}>
             {direction === 'robot' && (
                 <div className={b('tail')} />
             )}
@@ -21,6 +21,6 @@ export const Message = ({ direction, text }: CommentProps) => {
             {direction === 'user' && (
                 <div className={b('tail')} />
             )}
-        </Flex>
+        </div>
     )
 }

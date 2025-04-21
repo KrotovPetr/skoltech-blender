@@ -7,12 +7,15 @@ export const App = () => {
 
   const toaster = new Toaster();
   return (
-    <ToasterProvider toaster={toaster}>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/model/*" element={<Model />} />
-      </Routes>
-      <ToasterComponent className="optional additional classes" hasPortal={true} />
-    </ToasterProvider>
+    <div className='content'>
+      <ToasterProvider toaster={toaster}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/model/*" element={<Model />} />
+        </Routes>
+        <ToasterComponent className="optional additional classes" hasPortal={true} />
+      </ToasterProvider>
+    </div>
+
   );
 };

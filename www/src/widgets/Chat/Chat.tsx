@@ -38,7 +38,7 @@ export const Chat = () => {
                 }, 1000);
             }
         }
-    }, []);
+    }, [navigate]);
 
     useEffect(() => {
         const storedObject = JSON.parse(localStorage.getItem('design') || '{}');
@@ -47,18 +47,21 @@ export const Chat = () => {
         if (updatedObject.description) {
             navigate('/model/2d');
         }
-
-    }, [])
+    }, [navigate]);
 
     return (
-        <Flex className={b()} direction="column" gap={4}>
-            <MessageList messages={messages} />
-            {isLoading && (
-                <Flex gap={3} alignItems="center">
-                    <Text variant="subheader-2">Генерируем</Text>
-                    <Loader size="l" />
-                </Flex>
-            )}
+        <Flex className={b()} direction="column">
+            <div className={b('messages-container')}>
+                <MessageList messages={messages} />
+                {isLoading && (
+                    <div className={b('loader-container')}>
+                        <Flex gap={2} alignItems="center" className={b('loader')}>
+                            <Text variant="caption-2">Генерируем</Text>
+                            <Loader size="s" />
+                        </Flex>
+                    </div>
+                )}
+            </div>
             <ChatInput addNewMessage={addNewMessage} />
         </Flex>
     );

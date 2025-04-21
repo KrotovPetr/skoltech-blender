@@ -22,6 +22,7 @@
     &__layout-wrapper {
         transform-origin: center;
         transition: transform 0.3s ease;
+        height: 100%;
     }
 
     &__toggle-sidebar {

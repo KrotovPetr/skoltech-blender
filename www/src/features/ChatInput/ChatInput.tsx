@@ -3,6 +3,7 @@ import { Button, Flex, Icon, TextArea } from "@gravity-ui/uikit";
 import block from "bem-cn-lite";
 import { Message } from "../../shared/types";
 import { useState } from "react";
+import './ChatInput.scss';
 
 const b = block('chat-input');
 
@@ -29,19 +30,28 @@ export const ChatInput = ({ addNewMessage }: ChatInputProps) => {
     };
 
     return (
-        <Flex gap={2} className={b()}>
-            <TextArea
-                minRows={3}
-                maxRows={5}
-                placeholder="Напишите роботу-помощнику"
-                size="l"
-                value={value}
-                onChange={(e) => { setValue(e.target.value); }}
-                onKeyDown={handleKeyDown} // добавляем обработчик нажатия клавиши
-            />
-            <Button size="l" className={b('button')} pin="circle-circle" onClick={sendMessage}>
-                <Icon data={LogoTelegram} size={16} />
-            </Button>
-        </Flex>
+        <div className={b()}>
+            <Flex gap={2} className={b('input-container')}>
+                <TextArea
+                    minRows={1}
+                    maxRows={4}
+                    placeholder="Напишите роботу-помощнику"
+                    size="m"
+                    value={value}
+                    onChange={(e) => { setValue(e.target.value); }}
+                    onKeyDown={handleKeyDown}
+                    className={b('textarea')}
+                />
+                <Button 
+                    size="m" 
+                    className={b('button')} 
+                    pin="circle-circle" 
+                    onClick={sendMessage}
+                    view="action"
+                >
+                    <Icon data={LogoTelegram} size={14} />
+                </Button>
+            </Flex>
+        </div>
     );
 }

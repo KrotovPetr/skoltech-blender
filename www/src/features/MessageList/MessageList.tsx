@@ -21,12 +21,18 @@ export const MessageList = ({ messages }: MessageListProps) => {
     }, [messages]);
 
     return (
-        <div ref={containerRef} className={b()}>
-            <Flex direction="column" gap={1}>
-                {messages.map(({ direction, text }: Message, index: number) => (
-                    <MessageWithAvatar direction={direction} text={text} key={index} />
-                ))}
-            </Flex>
+        <div className={b()} ref={containerRef}>
+            <div className={b('content')}>
+                <Flex direction="column" gap={1}>
+                    {messages.map(({ direction, text }: Message, index: number) => (
+                        <MessageWithAvatar 
+                            direction={direction} 
+                            text={text} 
+                            key={index}
+                        />
+                    ))}
+                </Flex>
+            </div>
         </div>
     );
 }
