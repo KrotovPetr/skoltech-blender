@@ -8,10 +8,11 @@ import { useEffect, useRef } from "react";
 const b = block('message-list');
 
 interface MessageListProps {
-    messages: Message[]
+    messages: Message[];
+    onLinkClick?: (url: string) => void;
 }
 
-export const MessageList = ({ messages }: MessageListProps) => {
+export const MessageList = ({ messages, onLinkClick }: MessageListProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -29,6 +30,7 @@ export const MessageList = ({ messages }: MessageListProps) => {
                             direction={direction} 
                             text={text} 
                             key={index}
+                            onLinkClick={onLinkClick}
                         />
                     ))}
                 </Flex>

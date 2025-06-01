@@ -5,9 +5,7 @@ export const predefinedScenes = [
         data: {
             roomDimensions: { width: 1024, height: 1024 },
             objects: [
-                { id: "sofa-1", label: "sofa", coordinates: { x: 300, y: 200, width: 200, height: 80 }, rotation: 0 },
-                { id: "coffee-table-1", label: "coffee table", coordinates: { x: 300, y: 300, width: 120, height: 60 }, rotation: 0 },
-                { id: "TV-stand-1", label: "TV stand", coordinates: { x: 300, y: 400, width: 180, height: 40 }, rotation: 0 }
+               
             ]
         }
     },

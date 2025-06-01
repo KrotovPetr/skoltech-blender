@@ -1,20 +1,33 @@
 import { RoomLayout, Sidebar } from '../../features/Scene2D';
-import { data } from './utils';
+import { data, data2 } from './utils';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Flex, Button } from '@gravity-ui/uikit';
 import block from "bem-cn-lite";
 import './Scene2D.scss'
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 const b = block('scene-2d')
 
 export const Scene2D = () => {
+    const [searchParams] = useSearchParams();
     const [sceneJSON, setSceneJSON] = useState<string>("");
     const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
     const [scale, setScale] = useState<number>(1);
     const roomLayoutRef = useRef<any>(null);
     const layoutContainerRef = useRef<HTMLDivElement>(null);
+
+    // Получаем modelId из query параметров
+    const modelId = useMemo(() => {
+        const id = searchParams.get('modelId');
+        return id ? parseInt(id) : 1;
+    }, [searchParams]);
+
+    // Выбираем данные на основе modelId
+    const initialData = useMemo(() => {
+        return modelId === 1 ? data : data2;
+    }, [modelId]);
 
     // Обновление JSON при изменениях в сцене
     const updateJson = useCallback((value: string) => {
@@ -68,8 +81,9 @@ export const Scene2D = () => {
             const containerHeight = layoutContainerRef.current.clientHeight;
 
             // Предполагаемые размеры сцены (8.3м × 10.96м в пикселях + отступы)
-            const roomWidthPx = 8.3 * 100 + 40; // Ширина комнаты в пикселях + отступы
-            const roomHeightPx = 10.96 * 100 + 40; // Высота комнаты в пикселях + отступы
+            const roomWidthPx = modelId === 1 ? 8.3 : 9.13 * 100 + 40; // Ширина комнаты в пикселях + отступы
+            const roomHeightPx = modelId === 1 ? 10.96 : 9.86 * 100 + 40; // Высота комнаты в пикселях + отступы
+
 
             // Определение оптимального масштаба
             const widthScale = containerWidth / roomWidthPx;
@@ -94,15 +108,23 @@ export const Scene2D = () => {
         };
     }, [isSidebarOpen]); // Пересчитываем при переключении сайдбара
 
+    // Перезагружаем данные при изменении modelId
+    useEffect(() => {
+        if (roomLayoutRef.current && roomLayoutRef.current.loadSceneFromData) {
+            roomLayoutRef.current.loadSceneFromData(initialData);
+        }
+    }, [modelId, initialData]);
+
     return (
         <DndProvider backend={HTML5Backend}>
             <Flex className={b()} justifyContent="space-between">
-                <div className={b('layout-container', { 'sidebar-open': isSidebarOpen })} ref={layoutContainerRef}>
-                    <div className={b('layout-wrapper')} style={{ transform: `scale(${scale})`, transition: 'transform 0.3s ease' }}>
+                <div ref={layoutContainerRef} className={b('layout-container')}>
+                    <div className={b('room-wrapper')} style={{ transform: `scale(${scale})` }}>
                         <RoomLayout
                             ref={roomLayoutRef}
-                            initialObjects={data}
+                            initialObjects={initialData}
                             updateJson={updateJson}
+                            modelId={modelId}
                         />
                     </div>
 

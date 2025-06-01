@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import { useDrop } from "react-dnd";
 import { DraggableObject } from "./DraggableObject";
 
@@ -49,6 +49,11 @@ interface PlainSVGObjectDataWithRotation extends PlainSVGObjectData {
 export interface RoomLayoutProps {
     initialObjects: InputObject[];
     updateJson: (value: string) => void;
+    modelId: number;
+}
+
+export interface RoomLayoutRef {
+    loadSceneFromData: (data: InputObject[]) => void;
 }
 
 interface ColorsDisctionary {
@@ -59,9 +64,12 @@ interface ColorsDisctionary {
 const METERS_TO_PIXELS = 100;
 const LABEL_SPACE = 20;
 
+
+const ROOM_WIDTH_1 = 8.13 * METERS_TO_PIXELS; // в пикселях
+const ROOM_HEIGHT_1 = 10.96 * METERS_TO_PIXELS; // в пикселях
 // Определение размеров комнаты
-const ROOM_WIDTH = 8.3 * METERS_TO_PIXELS; // в пикселях
-const ROOM_HEIGHT = 10.96 * METERS_TO_PIXELS; // в пикселях
+const ROOM_WIDTH_2 = 9.13 * METERS_TO_PIXELS; // в пикселях
+const ROOM_HEIGHT_2 = 9.86 * METERS_TO_PIXELS; // в пикселях
 
 // Словарь цветов
 export const colors: ColorsDisctionary = {
@@ -174,13 +182,22 @@ const convertToJSON = (svgObject: PlainSVGObjectDataWithRotation): InputObject =
     };
 };
 
-export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJson }) => {
+export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialObjects, updateJson, modelId }, ref) => {
+    const roomDimensions = modelId === 1 ? [
+        9.3,
+        10.96,
+        2.5
+    ] : [
+        9.13,
+        9.86,
+        2.5
+    ]
     // Инициализация viewBox
     const [viewBox] = useState({
         minX: 0,
         minY: 0,
-        width: ROOM_WIDTH,
-        height: ROOM_HEIGHT
+        width: modelId === 1 ? ROOM_WIDTH_1 : ROOM_WIDTH_2,
+        height: modelId === 1 ? ROOM_HEIGHT_1 : ROOM_HEIGHT_2
     });
 
     // Размеры и состояния
@@ -202,10 +219,21 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
     // Границы комнаты
     const bounds = {
         minX: 0,
-        maxX: ROOM_WIDTH,
+        maxX: modelId === 1 ? ROOM_WIDTH_1 : ROOM_WIDTH_2,
         minY: 0,
-        maxY: ROOM_HEIGHT
+        maxY: modelId === 1 ? ROOM_HEIGHT_1 : ROOM_HEIGHT_2
     };
+
+    // Императивный handle для родительского компонента
+    useImperativeHandle(ref, () => ({
+        loadSceneFromData: (data: InputObject[]) => {
+            const convertedObjects = data.map(convertToSVGObject);
+            setObjects(convertedObjects);
+            setSelectedObjectId(null);
+            // Обновляем счетчик ID на основе загруженных объектов
+            nextIdRef.current = data.length;
+        }
+    }));
 
     useEffect(() => {
         const convertedObjects = initialObjects.map(convertToSVGObject);
@@ -335,11 +363,7 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
     const handleEndAction = (id: string) => {
         const updatedObjects = objects.map(obj => convertToJSON(obj));
         updateJson(JSON.stringify([{
-            "room_dimensions": [
-                8.3,
-                10.96,
-                2.5
-            ]
+            "room_dimensions": roomDimensions
         }, ...updatedObjects], null, 2));
     };
 
@@ -410,11 +434,7 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
 
                     // Вызываем updateJson с обновленными данными
                     updateJson(JSON.stringify([{
-                        "room_dimensions": [
-                            8.3,
-                            10.96,
-                            2.5
-                        ]
+                        "room_dimensions": roomDimensions
                     }, ...jsonObjects], null, 2));
 
                     return newObjects;
@@ -447,13 +467,9 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
     useEffect(() => {
         const updatedObjects = objects.map(obj => convertToJSON(obj));
         updateJson(JSON.stringify([{
-            "room_dimensions": [
-                8.3,
-                10.96,
-                2.5
-            ]
+            "room_dimensions": roomDimensions
         }, ...updatedObjects], null, 2));
-    }, [objects]);
+    }, [objects, updateJson]);
 
     // Рендер
     return (
@@ -524,7 +540,6 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
                     Правая стена
                 </text>
                 {/* Внутренний SVG */}
-                // В компоненте RoomLayout, в SVG с объектами мебели
                 <svg
                     ref={roomSvgRef}
                     x={LABEL_SPACE}
@@ -540,16 +555,16 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
                     <rect
                         x={0}
                         y={0}
-                        width={ROOM_WIDTH}
-                        height={ROOM_HEIGHT}
+                        width={modelId === 1 ? ROOM_WIDTH_1 : ROOM_WIDTH_2}
+                        height={modelId === 1 ? ROOM_HEIGHT_1 : ROOM_HEIGHT_2}
                         fill="white"
                         pointerEvents="all" // Этот прямоугольник должен принимать события drop
                     />
                     <rect
                         x={0}
                         y={0}
-                        width={ROOM_WIDTH}
-                        height={ROOM_HEIGHT}
+                        width={modelId === 1 ? ROOM_WIDTH_1 : ROOM_WIDTH_2}
+                        height={modelId === 1 ? ROOM_HEIGHT_1 : ROOM_HEIGHT_2}
                         fill="none"
                         stroke="black"
                         strokeWidth={4}
@@ -562,8 +577,8 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
                             key={obj.id}
                             obj={obj}
                             index={index}
-                            roomHeight={ROOM_HEIGHT}
-                            roomWidth={ROOM_WIDTH}
+                            roomWidth={modelId === 1 ? ROOM_WIDTH_1 : ROOM_WIDTH_2}
+                            roomHeight={modelId === 1 ? ROOM_HEIGHT_1 : ROOM_HEIGHT_2}
                             bounds={bounds}
                             onMove={moveObject}
                             onUpdate={updateObject}
@@ -591,4 +606,6 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ initialObjects, updateJs
             </svg>
         </div>
     );
-};
+});
+
+RoomLayout.displayName = 'RoomLayout';

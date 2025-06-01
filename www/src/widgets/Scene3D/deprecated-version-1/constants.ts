@@ -1,5 +1,4 @@
 import { TGLBModel, TGLBModelV2, TRotation } from "./types";
-import { toDegrees } from "./utils";
 
 export const TGLBModels: TGLBModel[] =
     [
@@ -507,7 +506,7 @@ export const TGLBModelsV2: TGLBModelV2[] = [
         "color": "white"
     },
     {
-        "new_object_id": "window_2",
+        "new_object_id": "window_22",
         "size_in_meters": {
             "length": 5.23,
             "width": 0.66,
@@ -518,13 +517,253 @@ export const TGLBModelsV2: TGLBModelV2[] = [
             "y": 5.8,
             "z": 1.0
         },
-        "rotation_z": 90,
+        "rotation_z": 0,
         "style": "Modern",
         "material": "aluminum",
         "color": "white"
     }
 ]
 
+export const TGLBModelsV3: TGLBModelV2[] = [
+    {
+        "new_object_id": "sofa_1_1",
+        "size_in_meters": {
+            "length": 4.6,
+            "width": 3.2,
+            "height": 1.3
+        },
+        "position": {
+            "x": 5.0,
+            "y": 1.4,
+            "z": -0.9
+        },
+        "rotation_z": 0,
+        "style": "Modern",
+        "material": "Fabric",
+        "color": "Warm Gray"
+    },
+    {
+        "new_object_id": "TV stand_1",
+        "size_in_meters": {
+            "length": 3.5,
+            "width": 0.7,
+            "height": 2.3
+        },
+        "position": {
+            "x": 0.4,
+            "y": 5.45,
+            "z": 0.85
+        },
+        "rotation_z": 0,
+        "style": "Modern",
+        "material": "Glass",
+        "color": "Black"
+    },
+    {
+        "new_object_id": "rug_1_1",
+        "size_in_meters": {
+            "length": 6.32,
+            "width": 5.9,
+            "height": 0.02
+        },
+        "position": {
+            "x": 5.6,
+            "y": 4.85,
+            "z": 0.0
+        },
+        "rotation_z": 90,
+        "style": "Modern",
+        "material": "wool",
+        "color": "light blue"
+    },
+    {
+        "new_object_id": "bookshelf_1",
+        "size_in_meters": {
+            "length": 1.7,
+            "width": 0.4,
+            "height": 2.0
+        },
+        "position": {
+            "x": 0.4,
+            "y": 8.8,
+            "z": 0.2
+        },
+        "rotation_z": 90,
+        "style": "Modern",
+        "material": "Wood",
+        "color": "Light Oak"
+    },
+    {
+        "new_object_id": "coffee table_1",
+        "size_in_meters": {
+            "length": 2.2,
+            "width": 1.0,
+            "height": 0.5
+        },
+        "position": {
+            "x": 5.58,
+            "y": 4.87,
+            "z": 0.0
+        },
+        "rotation_z": 90,
+        "style": "Modern",
+        "material": "Wood",
+        "color": "Warm Brown"
+    },
+    {
+        "new_object_id": "armchair_1_1",
+        "size_in_meters": {
+            "length": 1.0,
+            "width": 0.9,
+            "height": 0.9
+        },
+        "position": {
+            "x": 4.47,
+            "y": 8.4,
+            "z": 0.0
+        },
+        "rotation_z": 90,
+        "style": "Modern",
+        "material": "Fabric",
+        "color": "Warm Taupe"
+    },
+    {
+        "new_object_id": "armchair_2_1",
+        "size_in_meters": {
+            "length": 1.0,
+            "width": 0.9,
+            "height": 0.9
+        },
+        "position": {
+            "x": 6.0,
+            "y": 8.4,
+            "z": 0.0
+        },
+        "rotation_z": 90,
+        "style": "Modern",
+        "material": "Fabric",
+        "color": "Warm Taupe"
+    },
+    {
+        "new_object_id": "side table_1_1",
+        "size_in_meters": {
+            "length": 0.9,
+            "width": 0.9,
+            "height": 0.6
+        },
+        "position": {
+            "x": 8.0,
+            "y": 8.5,
+            "z": 0.0
+        },
+        "rotation_z": 90,
+        "style": "Modern",
+        "material": "Wood",
+        "color": "Warm Brown"
+    },
+    {
+        "new_object_id": "side table_2_1",
+        "size_in_meters": {
+            "length": 0.9,
+            "width": 0.9,
+            "height": 0.6
+        },
+        "position": {
+            "x": 8.0,
+            "y": 2.2,
+            "z": 0.0
+        },
+        "rotation_z": 90,
+        "style": "Modern",
+        "material": "Wood",
+        "color": "Warm Brown"
+    },
+    {
+        "new_object_id": "floor lamp_1_1",
+        "size_in_meters": {
+            "length": 3.3,
+            "width": 3.3,
+            "height": 1.5
+        },
+        "position": {
+            "x": 7.86,
+            "y": 1.3,
+            "z": -0.4
+        },
+        "rotation_z": 0,
+        "style": "Modern",
+        "material": "metal",
+        "color": "black"
+    },
+    {
+        "new_object_id": "sofa_2_1",
+        "size_in_meters": {
+            "length": 4.6,
+            "width": 3.2,
+            "height": 1.3
+        },
+        "position": {
+            "x": 7.6,
+            "y": 5.15,
+            "z": -0.9
+        },
+        "rotation_z": 90,
+        "style": "Modern",
+        "material": "Fabric",
+        "color": "Warm Gray"
+    },
+    {
+        "new_object_id": "floor plant_1_1",
+        "size_in_meters": {
+            "length": 1.8,
+            "width": 1.8,
+            "height": 1.55
+        },
+        "position": {
+            "x": 1.2,
+            "y": 1.4,
+            "z": 0.0
+        },
+        "rotation_z": 0,
+        "style": "Modern",
+        "material": "wicker",
+        "color": "light brown"
+    },
+    {
+        "new_object_id": "window_1_1",
+        "size_in_meters": {
+            "length": 1.8,
+            "width": 0.2,
+            "height": 1.8
+        },
+        "position": {
+            "x": 3.58,
+            "y": 9.76,
+            "z": 0.4
+        },
+        "rotation_z": 0,
+        "style": "Modern",
+        "material": "Wood",
+        "color": "Warm Brown"
+    },
+    {
+        "new_object_id": "window_2_1",
+        "size_in_meters": {
+            "length": 1.8,
+            "width": 0.2,
+            "height": 1.8
+        },
+        "position": {
+            "x": 6.8,
+            "y": 9.75,
+            "z": 0.4
+        },
+        "rotation_z": 0,
+        "style": "Modern",
+        "material": "Wood",
+        "color": "Warm Brown"
+    }
+]
 
 
 export const rotationSettings: Record<string, TRotation> = {
@@ -554,6 +793,17 @@ export const rotationSettings2: Record<string, TRotation> = {
     "side table_2": { x_angle: 0, y_angle: 90, z_angle: 0 },
     "side table_3": { x_angle: 0, y_angle: 90, z_angle: 0 },
     "side table_4": { x_angle: 0, y_angle: 0, z_angle: 0 },
-    "window_1": { x_angle: 0, y_angle: 180, z_angle: 0 },
-    "window_2": { x_angle: 0, y_angle: 270, z_angle: 0 }
+    "window_1": { x_angle: 0, y_angle: 0, z_angle: 0 },
+    "window_22": { x_angle: 90, y_angle: 270, z_angle: 90 },
+    "window_1_1": { x_angle: 0, y_angle: 0, z_angle: 0 },
+    "window_2_1": { x_angle: 0, y_angle: 0, z_angle: 0 },
+    "tv stand_1": { x_angle: 0, y_angle: 100, z_angle: 1000 },
+    "TV stand_1": { x_angle: 0, y_angle: 90, z_angle: 0 },
+    "bookshelf_1": { x_angle: 0, y_angle: 90, z_angle: 0 },
+    "sofa_1_1": { x_angle: 0, y_angle: 180, z_angle: 0 },
+    "sofa_2_1": { x_angle: 0, y_angle: -90, z_angle: 0 },
+    "armchair_2_1": { x_angle: 0, y_angle: 90, z_angle: 0 },
+    "armchair_1_1": { x_angle: 0, y_angle: 90, z_angle: 0 },
+    "side table_1_1": { x_angle: 0, y_angle: 90, z_angle: 0 },
+    "side table_2_1": { x_angle: 0, y_angle: 90, z_angle: 0 },
 };

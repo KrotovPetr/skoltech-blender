@@ -2,10 +2,16 @@ import React, { useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
+import { useSearchParams } from 'react-router-dom';
 import { Helpers, SceneLights } from './components';
 import { TRotation } from './types';
-import { rotationSettings, rotationSettings2, TGLBModels, TGLBModelsV2 } from './constants';
-const SETTINGS = [
+import { rotationSettings, rotationSettings2, TGLBModels, TGLBModelsV2, TGLBModelsV3 } from './constants';
+
+const ROTATION_OFFSET_VECTOR = new THREE.Vector3(Math.PI / 2, 0, 0);
+const DEG_TO_RAD_FACTOR = Math.PI / 180.0;
+
+// Массив всех доступных настроек
+const ALL_SETTINGS = [
     {
         rotationSettings,
         TGLBModels,
@@ -15,11 +21,23 @@ const SETTINGS = [
         rotationSettings: rotationSettings2,
         TGLBModels: TGLBModelsV2,
         assetsPathPrefix: '/assets/new',
+        roomDimensions: {
+            length: 8.3,
+            width: 10.96,
+            height: 2.5
+        },
     },
-][1];
-
-const ROTATION_OFFSET_VECTOR = new THREE.Vector3(Math.PI / 2, 0, 0);
-const DEG_TO_RAD_FACTOR = Math.PI / 180.0;
+    {
+        rotationSettings: rotationSettings2,
+        TGLBModels: TGLBModelsV3,
+        assetsPathPrefix: '/assets/new',
+        roomDimensions: {
+            length: 9.13,
+            width: 9.86,
+            height: 2.5
+        },
+    },
+];
 
 interface ModelProps {
     modelPath: string;
@@ -46,7 +64,7 @@ const Model: React.FC<ModelProps> = ({ modelPath, position, rotation, size_in_me
     );
 
     const rotationEuler = useMemo(() => new THREE.Euler().setFromVector3(
-        new THREE.Vector3(rotation.x_angle, rotation.y_angle, rotation.z_angle)
+        new THREE.Vector3(rotation?.x_angle ?? 0, rotation?.y_angle ?? 0, rotation?.z_angle ?? 0)
             .multiplyScalar(DEG_TO_RAD_FACTOR)
             .add(ROTATION_OFFSET_VECTOR),
     ), [rotation]);
@@ -76,12 +94,29 @@ const Model: React.FC<ModelProps> = ({ modelPath, position, rotation, size_in_me
     return <primitive object={model} />;
 };
 
-const roomDimensions = {
-    length: 8.3,
-    width: 10.96,
-    height: 2.5
-};
+
 const Room: React.FC = () => {
+
+    const [searchParams] = useSearchParams();
+
+    // Получаем modelId из query параметров
+    const modelId = useMemo(() => {
+        const id = searchParams.get('modelId');
+        console.log(id)
+        return id ? parseInt(id) : 1;
+    }, [searchParams]);
+
+    // Выбираем настройки на основе modelId
+    // Если modelId = 2, используем настройки с индексом 2 (третий элемент массива)
+    // Иначе используем настройки с индексом 1 (второй элемент массива)
+    const roomDimensions = useMemo(() => {
+        if (modelId === 2) {
+            return ALL_SETTINGS[2].roomDimensions; // Третий элемент массива (индекс 2)
+        }
+        return ALL_SETTINGS[1].roomDimensions; // Второй элемент массива (индекс 1)
+    }, [modelId]);
+
+    //@ts-ignore
     const { length, width, height } = roomDimensions;
     const wallColor = "rgb(70, 90, 65)"; // Еще светлее
     const floorColor = "#696f6f"; // Еще светлее
@@ -127,8 +162,26 @@ const Room: React.FC = () => {
     );
 };
 
-
 export const Scene: React.FC = () => {
+    const [searchParams] = useSearchParams();
+
+    // Получаем modelId из query параметров
+    const modelId = useMemo(() => {
+        const id = searchParams.get('modelId');
+        console.log(id)
+        return id ? parseInt(id) : 1;
+    }, [searchParams]);
+
+    // Выбираем настройки на основе modelId
+    // Если modelId = 2, используем настройки с индексом 2 (третий элемент массива)
+    // Иначе используем настройки с индексом 1 (второй элемент массива)
+    const SETTINGS = useMemo(() => {
+        if (modelId === 2) {
+            return ALL_SETTINGS[2]; // Третий элемент массива (индекс 2)
+        }
+        return ALL_SETTINGS[1]; // Второй элемент массива (индекс 1)
+    }, [modelId]);
+
     return (
         <Canvas
             shadows
@@ -143,7 +196,7 @@ export const Scene: React.FC = () => {
                 <Model
                     key={obj.new_object_id}
                     modelPath={`${SETTINGS.assetsPathPrefix}/${obj.new_object_id}_processed.glb`}
-                    position={[obj.position.x, obj.position.y, obj.position.z]}
+                    position={[obj.position.x, obj.position.y, modelId === 2 ? (obj.new_object_id === 'window_1_1' || obj.new_object_id === 'window_2_1') ? obj.position.z : 0 : obj.position.z]}
                     rotation={SETTINGS.rotationSettings[obj.new_object_id]}
                     size_in_meters={obj.size_in_meters}
                 />
