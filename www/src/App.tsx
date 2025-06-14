@@ -10,71 +10,53 @@ import { Scene2D } from './widgets/Scene2D/Scene2D';
 
 const b = block('app');
 const SCENE_GENERATED_EVENT = 'scene-generated';
-const MIN_MESSAGES_COUNT = 3;
 
 export const App = () => {
   const toaster = new Toaster();
 
   const [compact, setCompact] = useState<boolean>(false);
   const [hasGeneratedScene, setHasGeneratedScene] = useState<boolean>(false);
+  const [latestModelId, setLatestModelId] = useState<number>(1);
+  const [menuKey, setMenuKey] = useState<number>(0); // Добавляем счетчик для форсирования обновления
   const navigate = useNavigate();
   const location = useLocation();
 
   // Функция проверки наличия сгенерированных сцен
   const checkGeneratedScenes = useCallback(() => {
-    // Проверяем localStorage на наличие данных о дизайне
-    const designData = localStorage.getItem('design');
     const chatMessages = sessionStorage.getItem('chat_messages');
 
-    // Проверяем количество сообщений в чате
     if (chatMessages) {
       try {
         const messages = JSON.parse(chatMessages);
 
-        // Проверяем общее количество сообщений
-        if (messages.length < MIN_MESSAGES_COUNT) {
-          setHasGeneratedScene(false);
-          return;
-        }
-
-        // Дополнительно проверяем наличие сообщений от робота с ссылками
-        const hasRobotMessageWithLink = messages.some((msg: any) =>
-          msg.direction === 'robot' &&
-          (msg.text.includes('[Перейти к модели') || msg.modelId)
+        // Проверяем наличие хотя бы одного сообщения робота с modelId
+        const robotMessagesWithModel = messages.filter((msg: any) =>
+          msg.direction === 'robot' && msg.modelId
         );
 
-        if (hasRobotMessageWithLink) {
-          setHasGeneratedScene(true);
-          return;
+        if (robotMessagesWithModel.length > 0) {
+          const lastRobotMessage = robotMessagesWithModel[robotMessagesWithModel.length - 1];
+
+          // Проверяем, изменился ли modelId
+          if (lastRobotMessage.modelId !== latestModelId) {
+            setLatestModelId(lastRobotMessage.modelId);
+            setMenuKey(prev => prev + 1); // Форсируем обновление меню
+          }
+
+          if (!hasGeneratedScene) {
+            setHasGeneratedScene(true);
+          }
+        } else {
+          setHasGeneratedScene(false);
         }
       } catch (e) {
         console.error('Error parsing chat messages:', e);
+        setHasGeneratedScene(false);
       }
+    } else {
+      setHasGeneratedScene(false);
     }
-
-    // Также проверяем design data
-    if (designData) {
-      try {
-        const design = JSON.parse(designData);
-        // Проверяем, есть ли описание (то есть была ли генерация)
-        if (design.description || design.username || design.modelOne || design.modelTwo) {
-          // Но все равно нужно проверить количество сообщений
-          if (chatMessages) {
-            try {
-              const messages = JSON.parse(chatMessages);
-              if (messages.length >= MIN_MESSAGES_COUNT) {
-                setHasGeneratedScene(true);
-              }
-            } catch (e) {
-              console.error('Error parsing chat messages:', e);
-            }
-          }
-        }
-      } catch (e) {
-        console.error('Error parsing design data:', e);
-      }
-    }
-  }, []);
+  }, [latestModelId, hasGeneratedScene]);
 
   // Проверяем наличие сгенерированных сцен при загрузке
   useEffect(() => {
@@ -82,16 +64,17 @@ export const App = () => {
 
     // Обработчик изменений в storage
     const handleStorageChange = (e: StorageEvent) => {
-      // Проверяем, что изменение произошло в нужных ключах
-      if (e.key === 'design' || e.key === 'chat_messages') {
+      if (e.key === 'chat_messages') {
         checkGeneratedScenes();
       }
     };
 
     // Обработчик события генерации сцены
     const handleSceneGenerated = () => {
-      // При получении события также проверяем количество сообщений
-      checkGeneratedScenes();
+      setTimeout(() => {
+        checkGeneratedScenes();
+        setMenuKey(prev => prev + 1); // Форсируем обновление после генерации
+      }, 100);
     };
 
     // Подписываемся на события
@@ -110,13 +93,8 @@ export const App = () => {
       checkGeneratedScenes();
     }, 1000);
 
-    // Очищаем интервал, когда сцена сгенерирована
-    if (hasGeneratedScene) {
-      clearInterval(interval);
-    }
-
     return () => clearInterval(interval);
-  }, [hasGeneratedScene, checkGeneratedScenes]);
+  }, [checkGeneratedScenes]);
 
   const onClose = () => {
     setCompact(true);
@@ -141,29 +119,42 @@ export const App = () => {
     }
   ];
 
-  // Добавляем пункты меню для сцен только если была генерация и достаточно сообщений
-  const menuItems = hasGeneratedScene ? [
-    ...baseMenuItems,
-    // {
-    //   id: "3d-model",
-    //   title: <Text>3D-scene</Text>,
-    //   icon: Cube,
-    //   onItemClick: () => navigate('/3d'),
-    //   active: getActiveItem() === '3d-model'
-    // },
-    // {
-    //   id: "2d-model",
-    //   title: <Text>2D-layout</Text>,
-    //   icon: Cubes3,
-    //   onItemClick: () => navigate('/2d'),
-    //   active: getActiveItem() === '2d-model'
-    // }
-  ] : baseMenuItems;
+  // Формируем пункты меню в зависимости от состояния
+  const getMenuItems = () => {
+    if (!hasGeneratedScene) {
+      return baseMenuItems;
+    }
+
+    return [
+      ...baseMenuItems,
+      {
+        id: "3d-model",
+        title: <Text>3D-scene</Text>,
+        icon: Cube,
+        onItemClick: () => {
+          console.log('Navigating to 3D with modelId:', latestModelId);
+          navigate(`/3d?modelId=${latestModelId}`);
+        },
+        active: getActiveItem() === '3d-model'
+      },
+      {
+        id: "2d-model",
+        title: <Text>2D-layout</Text>,
+        icon: Cubes3,
+        onItemClick: () => {
+          console.log('Navigating to 2D with modelId:', latestModelId);
+          navigate(`/2d?modelId=${latestModelId}`);
+        },
+        active: getActiveItem() === '2d-model'
+      }
+    ];
+  };
 
   return (
     <div className='content'>
       <ToasterProvider toaster={toaster}>
         <AsideHeader
+          key={`menu-${menuKey}-${latestModelId}`}
           compact={compact}
           onChangeCompact={() => { setCompact((o) => !o) }}
           onClosePanel={onClose}
@@ -173,7 +164,7 @@ export const App = () => {
             icon: EyesLookRight,
             text: 'Plain Design'
           }}
-          menuItems={menuItems}
+          menuItems={getMenuItems()}
         />
 
         <Flex className={b()} direction={"row"}>

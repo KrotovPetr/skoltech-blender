@@ -22,7 +22,7 @@ export const MODEL_ROBOT_MESSAGE: Message = {
 export const createRobotMessageWithLink = (modelId: number): Message => {
     return {
         direction: "robot",
-        text: `Генерация прошла успешно, сцена собрана. [Перейти к модели ${modelId}](/2d?modelId=${modelId}) (2D). [Перейти к модели ${modelId}](/3d?modelId=${modelId}) (3D)`,
+        text: `Генерация прошла успешно, сцена собрана.`,
         timestamp: Date.now(),
         modelId
     };

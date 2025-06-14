@@ -118,7 +118,7 @@ const Room: React.FC = () => {
 
     //@ts-ignore
     const { length, width, height } = roomDimensions;
-    const wallColor = "rgb(70, 90, 65)"; // Еще светлее
+    const wallColor = modelId === 1 ? "rgb(70, 90, 65)" : "#454d4d"; // Еще светлее
     const floorColor = "#696f6f"; // Еще светлее
 
     return (

@@ -4,8 +4,8 @@ import './Chat.scss';
 import { ChatInput, MessageList } from "../../features";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { Message } from "../../shared/types";
-import { getMessageList, createRobotMessageWithLink } from "./utils";
 import { useNavigate } from "react-router-dom";
+import { createRobotMessageWithLink, getMessageList } from "./utils";
 
 const b = block('chat');
 
@@ -114,6 +114,11 @@ export const Chat = () => {
 
                 // Отправляем событие о генерации сцены
                 window.dispatchEvent(new Event(SCENE_GENERATED_EVENT));
+
+                // Автоматический редирект на 2D сцену после генерации
+                setTimeout(() => {
+                    navigate(`/2d?modelId=${modelId}`);
+                }, 500); // Небольшая задержка, чтобы пользователь успел увидеть сообщение
             }, 10000);
         }
     }, [navigate, saveMessagesToStorage, messageCounter]);
