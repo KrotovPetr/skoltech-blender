@@ -1,0 +1,35 @@
+Начало: Sun Jun 15 16:33:59 MSK 2025
+SUCCESS: ./coffee table_1_processed.glb | 241680 -> 235204 | -3%
+SUCCESS: ./TV stand_1_processed.glb | 402780 -> 401552 | -1%
+SUCCESS: ./floor plant_1_1_processed.glb | 1652396 -> 1550304 | -7%
+SUCCESS: ./coffee table_2_processed.glb | 241680 -> 235204 | -3%
+SUCCESS: ./floor lamp_1_1_processed.glb | 111168 -> 113384 | --1%
+SUCCESS: ./side table_2_1_processed.glb | 222264 -> 212504 | -5%
+SUCCESS: ./armchair_2_processed.glb | 503620 -> 456952 | -10%
+SUCCESS: ./sofa_2_processed.glb | 6631716 -> 1444000 | -79%
+SUCCESS: ./side table_3_processed.glb | 10980 -> 11520 | --4%
+SUCCESS: ./window_2_1_processed.glb | 510772 -> 496872 | -3%
+SUCCESS: ./side table_4_processed.glb | 10980 -> 11520 | --4%
+SUCCESS: ./window_1_processed.glb | 6292 -> 6696 | --6%
+SUCCESS: ./armchair_2_1_processed.glb | 1873184 -> 1879164 | -0%
+SUCCESS: ./sofa_2_1_processed.glb | 5436636 -> 5426164 | -1%
+SUCCESS: ./floor lamp_1_processed.glb | 1165360 -> 964800 | -18%
+SUCCESS: ./armchair_1_processed.glb | 510240 -> 456904 | -11%
+SUCCESS: ./sofa_1_processed.glb | 6631716 -> 1444000 | -79%
+SUCCESS: ./rug_1_1_processed.glb | 1351680 -> 1351668 | -1%
+SUCCESS: ./rug_1_processed.glb | 3929328 -> 3891032 | -1%
+SUCCESS: ./side table_1_processed.glb | 10980 -> 11520 | --4%
+SUCCESS: ./armchair_4_processed.glb | 503620 -> 456952 | -10%
+SUCCESS: ./floor plant_2_processed.glb | 2557528 -> 2430244 | -5%
+SUCCESS: ./floor plant_1_processed.glb | 2557528 -> 2430244 | -5%
+SUCCESS: ./sofa_3_processed.glb | 6631716 -> 1444000 | -79%
+SUCCESS: ./armchair_3_processed.glb | 503620 -> 456952 | -10%
+SUCCESS: ./side table_2_processed.glb | 10980 -> 11520 | --4%
+SUCCESS: ./sofa_1_1_processed.glb | 5436636 -> 5426164 | -1%
+SUCCESS: ./armchair_1_1_processed.glb | 1873184 -> 1879164 | -0%
+SUCCESS: ./coffee table_3_processed.glb | 241680 -> 235204 | -3%
+SUCCESS: ./bookshelf_1_processed.glb | 12601448 -> 2408700 | -81%
+SUCCESS: ./side table_1_1_processed.glb | 222264 -> 212504 | -5%
+SUCCESS: ./window_1_1_processed.glb | 510772 -> 496872 | -3%
+SUCCESS: ./coffee table_4_processed.glb | 241680 -> 235204 | -3%
+SUCCESS: ./window_22_processed.glb | 6292 -> 6696 | --6%

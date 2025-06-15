@@ -1,0 +1,35 @@
+Начало: Sun Jun 15 16:28:58 MSK 2025
+ERROR: ./coffee table_1_processed.glb
+ERROR: ./TV stand_1_processed.glb
+ERROR: ./floor plant_1_1_processed.glb
+ERROR: ./coffee table_2_processed.glb
+ERROR: ./floor lamp_1_1_processed.glb
+ERROR: ./side table_2_1_processed.glb
+ERROR: ./armchair_2_processed.glb
+ERROR: ./sofa_2_processed.glb
+ERROR: ./side table_3_processed.glb
+ERROR: ./window_2_1_processed.glb
+ERROR: ./side table_4_processed.glb
+ERROR: ./window_1_processed.glb
+ERROR: ./armchair_2_1_processed.glb
+ERROR: ./sofa_2_1_processed.glb
+ERROR: ./floor lamp_1_processed.glb
+ERROR: ./armchair_1_processed.glb
+ERROR: ./sofa_1_processed.glb
+ERROR: ./rug_1_1_processed.glb
+ERROR: ./rug_1_processed.glb
+ERROR: ./side table_1_processed.glb
+ERROR: ./armchair_4_processed.glb
+ERROR: ./floor plant_2_processed.glb
+ERROR: ./floor plant_1_processed.glb
+ERROR: ./sofa_3_processed.glb
+ERROR: ./armchair_3_processed.glb
+ERROR: ./side table_2_processed.glb
+ERROR: ./sofa_1_1_processed.glb
+ERROR: ./armchair_1_1_processed.glb
+ERROR: ./coffee table_3_processed.glb
+ERROR: ./bookshelf_1_processed.glb
+ERROR: ./side table_1_1_processed.glb
+ERROR: ./window_1_1_processed.glb
+ERROR: ./coffee table_4_processed.glb
+ERROR: ./window_22_processed.glb
