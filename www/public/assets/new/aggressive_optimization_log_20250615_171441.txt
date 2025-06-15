@@ -1,0 +1,35 @@
+Начало: Sun Jun 15 17:14:41 MSK 2025
+SUCCESS: ./coffee table_1_processed.glb | 235204 -> 59608 | -75% | Лимит: Соблюден
+SUCCESS: ./TV stand_1_processed.glb | 401552 -> 198960 | -51% | Лимит: Соблюден
+SUCCESS: ./floor plant_1_1_processed.glb | 1550304 -> 597152 | -62% | Лимит: Соблюден
+SUCCESS: ./coffee table_2_processed.glb | 235204 -> 59608 | -75% | Лимит: Соблюден
+SUCCESS: ./floor lamp_1_1_processed.glb | 113384 -> 48792 | -57% | Лимит: Соблюден
+SUCCESS: ./side table_2_1_processed.glb | 212504 -> 71548 | -67% | Лимит: Соблюден
+SUCCESS: ./armchair_2_processed.glb | 456952 -> 136356 | -71% | Лимит: Соблюден
+SUCCESS: ./sofa_2_processed.glb | 1444000 -> 726464 | -50% | Лимит: Соблюден
+SUCCESS: ./side table_3_processed.glb | 11520 -> 8244 | -29% | Лимит: Соблюден
+SUCCESS: ./window_2_1_processed.glb | 496872 -> 198436 | -61% | Лимит: Соблюден
+SUCCESS: ./side table_4_processed.glb | 11520 -> 8244 | -29% | Лимит: Соблюден
+SUCCESS: ./window_1_processed.glb | 6696 -> 6740 | -0% | Лимит: Соблюден
+SUCCESS: ./armchair_2_1_processed.glb | 1879164 -> 951208 | -50% | Лимит: Соблюден
+SUCCESS: ./sofa_2_1_processed.glb | 5426164 -> 61168 | -99% | Лимит: Соблюден
+SUCCESS: ./floor lamp_1_processed.glb | 964800 -> 89228 | -91% | Лимит: Соблюден
+SUCCESS: ./armchair_1_processed.glb | 456904 -> 136588 | -71% | Лимит: Соблюден
+SUCCESS: ./sofa_1_processed.glb | 1444000 -> 726464 | -50% | Лимит: Соблюден
+SUCCESS: ./rug_1_1_processed.glb | 1351668 -> 618024 | -55% | Лимит: Соблюден
+SUCCESS: ./rug_1_processed.glb | 3891032 -> 36316 | -100% | Лимит: Соблюден
+SUCCESS: ./side table_1_processed.glb | 11520 -> 8244 | -29% | Лимит: Соблюден
+SUCCESS: ./armchair_4_processed.glb | 456952 -> 136356 | -71% | Лимит: Соблюден
+SUCCESS: ./floor plant_2_processed.glb | 2430244 -> 135640 | -95% | Лимит: Соблюден
+SUCCESS: ./floor plant_1_processed.glb | 2430244 -> 135640 | -95% | Лимит: Соблюден
+SUCCESS: ./sofa_3_processed.glb | 1444000 -> 726464 | -50% | Лимит: Соблюден
+SUCCESS: ./armchair_3_processed.glb | 456952 -> 136356 | -71% | Лимит: Соблюден
+SUCCESS: ./side table_2_processed.glb | 11520 -> 8244 | -29% | Лимит: Соблюден
+SUCCESS: ./sofa_1_1_processed.glb | 5426164 -> 61168 | -99% | Лимит: Соблюден
+SUCCESS: ./armchair_1_1_processed.glb | 1879164 -> 951208 | -50% | Лимит: Соблюден
+SUCCESS: ./coffee table_3_processed.glb | 235204 -> 59608 | -75% | Лимит: Соблюден
+SUCCESS: ./bookshelf_1_processed.glb | 2408700 -> 1251508 | -49% | Лимит: Превышен
+SUCCESS: ./side table_1_1_processed.glb | 212504 -> 71548 | -67% | Лимит: Соблюден
+SUCCESS: ./window_1_1_processed.glb | 496872 -> 198436 | -61% | Лимит: Соблюден
+SUCCESS: ./coffee table_4_processed.glb | 235204 -> 59608 | -75% | Лимит: Соблюден
+SUCCESS: ./window_22_processed.glb | 6696 -> 6740 | -0% | Лимит: Соблюден
