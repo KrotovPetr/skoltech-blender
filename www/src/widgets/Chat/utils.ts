@@ -1,4 +1,3 @@
-// shared/types.ts
 export interface Message {
     direction: 'user' | 'robot';
     text: string;
@@ -18,7 +17,6 @@ export const MODEL_ROBOT_MESSAGE: Message = {
     timestamp: Date.now()
 };
 
-// Функция для генерации сообщения робота с нужным modelId
 export const createRobotMessageWithLink = (modelId: number): Message => {
     return {
         direction: "robot",

@@ -1,5 +1,4 @@
 
-// Компонент кнопки закрытия
 export const CloseButton: React.FC<{
     x: number;
     y: number;

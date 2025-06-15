@@ -17,11 +17,10 @@ export const App = () => {
   const [compact, setCompact] = useState<boolean>(false);
   const [hasGeneratedScene, setHasGeneratedScene] = useState<boolean>(false);
   const [latestModelId, setLatestModelId] = useState<number>(1);
-  const [menuKey, setMenuKey] = useState<number>(0); // Добавляем счетчик для форсирования обновления
+  const [menuKey, setMenuKey] = useState<number>(0); 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Функция проверки наличия сгенерированных сцен
   const checkGeneratedScenes = useCallback(() => {
     const chatMessages = sessionStorage.getItem('chat_messages');
 
@@ -29,7 +28,6 @@ export const App = () => {
       try {
         const messages = JSON.parse(chatMessages);
 
-        // Проверяем наличие хотя бы одного сообщения робота с modelId
         const robotMessagesWithModel = messages.filter((msg: any) =>
           msg.direction === 'robot' && msg.modelId
         );
@@ -37,10 +35,9 @@ export const App = () => {
         if (robotMessagesWithModel.length > 0) {
           const lastRobotMessage = robotMessagesWithModel[robotMessagesWithModel.length - 1];
 
-          // Проверяем, изменился ли modelId
           if (lastRobotMessage.modelId !== latestModelId) {
             setLatestModelId(lastRobotMessage.modelId);
-            setMenuKey(prev => prev + 1); // Форсируем обновление меню
+            setMenuKey(prev => prev + 1); 
           }
 
           if (!hasGeneratedScene) {
@@ -58,26 +55,22 @@ export const App = () => {
     }
   }, [latestModelId, hasGeneratedScene]);
 
-  // Проверяем наличие сгенерированных сцен при загрузке
   useEffect(() => {
     checkGeneratedScenes();
 
-    // Обработчик изменений в storage
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'chat_messages') {
         checkGeneratedScenes();
       }
     };
 
-    // Обработчик события генерации сцены
     const handleSceneGenerated = () => {
       setTimeout(() => {
         checkGeneratedScenes();
-        setMenuKey(prev => prev + 1); // Форсируем обновление после генерации
+        setMenuKey(prev => prev + 1);
       }, 100);
     };
 
-    // Подписываемся на события
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener(SCENE_GENERATED_EVENT, handleSceneGenerated);
 
@@ -87,7 +80,6 @@ export const App = () => {
     };
   }, [checkGeneratedScenes]);
 
-  // Дополнительная проверка с интервалом для отслеживания изменений в той же вкладке
   useEffect(() => {
     const interval = setInterval(() => {
       checkGeneratedScenes();
@@ -100,7 +92,6 @@ export const App = () => {
     setCompact(true);
   };
 
-  // Определяем активный элемент меню на основе текущего пути
   const getActiveItem = useCallback(() => {
     if (location.pathname === '/' || location.pathname.includes('/chat')) return 'chat';
     if (location.pathname.includes('/2d')) return '2d-model';
@@ -108,7 +99,6 @@ export const App = () => {
     return 'chat';
   }, [location.pathname]);
 
-  // Формируем базовые пункты меню
   const baseMenuItems = [
     {
       id: "chat",
@@ -119,7 +109,6 @@ export const App = () => {
     }
   ];
 
-  // Формируем пункты меню в зависимости от состояния
   const getMenuItems = () => {
     if (!hasGeneratedScene) {
       return baseMenuItems;

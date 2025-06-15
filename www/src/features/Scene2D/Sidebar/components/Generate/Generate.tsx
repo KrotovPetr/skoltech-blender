@@ -12,7 +12,6 @@ export const Generate = ({ onGenerateScene }: GenerateProps) => {
         setIsGenerating(true);
         onGenerateScene(prompt);
 
-        // Простая имитация асинхронного процесса
         setTimeout(() => {
             setIsGenerating(false);
             setPrompt("");

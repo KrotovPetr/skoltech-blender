@@ -54,7 +54,6 @@ interface ColorsDisctionary {
     [key: string]: string;
 }
 
-// Словарь цветов
 export const colors: ColorsDisctionary = {
     "TV stand": "#FF0000",
     "bar counter": "#0000FF",
@@ -115,30 +114,23 @@ export const DraggableObject: React.FC<{
 }) => {
         const ref = useRef<SVGGElement>(null);
 
-        // Добавляем поддержку drag-and-drop для каждого объекта
         const [, drop] = useDrop(() => ({
             accept: "object",
-            // Прозрачный обработчик, который просто пропускает событие дальше
             hover: (item, monitor) => {
-                // Позволяем событию всплывать дальше
             },
-            // Предотвращаем обработку здесь, чтобы событие дошло до родительского компонента
             canDrop: () => false
         }));
 
-        // Инициализируем ref для drag-n-drop
         useEffect(() => {
             if (ref.current) {
                 drop(ref.current);
             }
         }, [drop]);
 
-        // Перемещение объекта
         const handleMouseDown = (e: React.MouseEvent) => {
             if (e.button !== 0) return;
             e.stopPropagation();
 
-            // Выбираем объект при начале перетаскивания
             onSelect(obj.id);
 
             const startCoords = { ...obj.coordinates };
@@ -152,7 +144,6 @@ export const DraggableObject: React.FC<{
                 let newX = currentX - offsetX;
                 let newY = currentY - offsetY;
 
-                // Проверяем, находится ли объект полностью внутри комнаты
                 if (isInsideRoom(newX, newY, obj.coordinates.width, obj.coordinates.height, obj.rotation)) {
                     onMove(obj.id, newX, newY);
                 }
@@ -168,7 +159,6 @@ export const DraggableObject: React.FC<{
             document.addEventListener('mouseup', handleMouseUp);
         };
 
-        // Изменение размера
         const handleResize = (e: MouseEvent, corner: string, initialData: {
             width: number;
             height: number;
@@ -188,7 +178,7 @@ export const DraggableObject: React.FC<{
             let newX = initialData.x;
             let newY = initialData.y;
 
-            const minSize = 20; // Минимальный размер в пикселях
+            const minSize = 20;
 
             switch (corner) {
                 case 'topLeft':
@@ -217,7 +207,6 @@ export const DraggableObject: React.FC<{
                     break;
             }
 
-            // Проверяем, находится ли объект после изменения размера внутри комнаты
             if (isInsideRoom(newX, newY, newWidth, newHeight, initialData.rotation)) {
                 onUpdate(obj.id, {
                     coordinates: {
@@ -230,7 +219,6 @@ export const DraggableObject: React.FC<{
             }
         };
 
-        // Вращение
         const handleRotate = (e: MouseEvent, initialData: {
             rotation: number;
             centerX: number;
@@ -249,7 +237,6 @@ export const DraggableObject: React.FC<{
             let newRotation = initialData.rotation + (currentAngle - initialData.startAngle);
             newRotation = ((newRotation % 360) + 360) % 360;
 
-            // Проверяем, находится ли объект после вращения внутри комнаты
             if (isInsideRoom(
                 initialData.centerX,
                 initialData.centerY,
@@ -261,12 +248,11 @@ export const DraggableObject: React.FC<{
             }
         };
 
-        // Удаление объекта
         const handleDelete = () => {
             if (onDeleteObject) {
                 onDeleteObject(obj.id);
             } else {
-                onDeselect(); // Если функция удаления не предоставлена, просто снимаем выделение
+                onDeselect();
             }
         };
 
@@ -296,7 +282,7 @@ export const DraggableObject: React.FC<{
                     stroke={isSelected ? "#00FF00" : obj.color}
                     strokeWidth={isSelected ? 3 : 2}
                     strokeDasharray={isSelected ? "5,5" : "none"}
-                    style={{ pointerEvents: "visiblePainted" }} // Важно для корректной обработки событий
+                    style={{ pointerEvents: "visiblePainted" }}
                 />
                 <text
                     x={centerX}

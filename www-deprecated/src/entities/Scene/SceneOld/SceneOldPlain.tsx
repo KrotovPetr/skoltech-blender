@@ -12,7 +12,6 @@ interface ModelProps {
 
 const Model: React.FC<ModelProps> = ({ position, size_in_meters, name }) => {
     useEffect(() => {
-        // Placeholder effect if needed in the future
     }, [position, size_in_meters]);
 
     return (

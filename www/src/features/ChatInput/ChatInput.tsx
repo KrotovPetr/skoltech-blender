@@ -21,10 +21,9 @@ export const ChatInput = ({ addNewMessage }: ChatInputProps) => {
         }
     };
 
-    // Обработчик нажатия клавиши
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault(); // исключить разрыв строки в TextArea
+            e.preventDefault();
             sendMessage();
         }
     };

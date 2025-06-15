@@ -2,20 +2,19 @@
     height: 100%;
     width: 100%;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch; // Для плавной инерционной прокрутки на iOS
+    -webkit-overflow-scrolling: touch; 
 
     &__content {
-        max-width: 800px; // Максимальная ширина для больших iPhone
+        max-width: 800px; 
         width: 100%;
         margin: 0 auto;
         padding: 16px;
     }
 
     &__message {
-        max-width: 85%; // Ограничиваем ширину сообщений
+        max-width: 85%; 
     }
 
-    // Улучшенный стиль скроллбара для iOS
     &::-webkit-scrollbar {
         width: 5px;
         height: 5px;

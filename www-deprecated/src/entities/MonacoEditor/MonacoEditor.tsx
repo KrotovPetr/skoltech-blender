@@ -19,36 +19,31 @@ export const MonacoEditor = ({ setJsonData, handleSaveRoomSize, handleFileUpload
     const [error, setError] = useState<string | null>(null); // Состояние для ошибок парсинга JSON
 
     const handleEditorWillMount = () => {
-        // Здесь можно настроить monaco перед монтированием, если необходимо
     };
 
     const handleEditorDidMount: OnMount = (editor, monaco) => {
-        // Изначально форматируем документ после монтирования
         //@ts-expect-error
         editor.getAction('editor.action.formatDocument').run();
 
-        // Форматируем документ при потере фокуса
         editor.onDidBlurEditorText(() => {
             //@ts-expect-error
             editor.getAction('editor.action.formatDocument').run();
         });
 
-        // Форматируем документ по нажатии Ctrl + S или Cmd + S
         editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
             //@ts-expect-error
             editor.getAction('editor.action.formatDocument').run();
         });
 
-        // Обработка изменений в редакторе
         editor.onDidChangeModelContent(() => {
             const value = editor.getValue();
             try {
-                const parsedData = JSON.parse(value); // Парсим JSON
-                setJsonData(parsedData); // Сохраняем данные в состояние
-                setError(null); // Очищаем ошибку, если парсинг успешен
+                const parsedData = JSON.parse(value);
+                setJsonData(parsedData); 
+                setError(null);
             } catch (e) {
-                setError('Invalid JSON'); // Устанавливаем ошибку, если JSON невалидный
-                setJsonData(null); // Очищаем данные
+                setError('Invalid JSON'); 
+                setJsonData(null); 
             }
         });
     };

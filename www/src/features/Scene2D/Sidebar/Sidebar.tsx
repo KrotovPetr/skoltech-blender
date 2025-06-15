@@ -15,7 +15,7 @@ export const Sidebar: React.FC<{
   onUpdateFromJSON: (jsonData: any) => void;
   sceneJSON: string;
 }> = ({ isOpen, onToggle, onLoadScene, onGenerateScene, onUpdateFromJSON, sceneJSON }) => {
-  const [activeTab, setActiveTab] = useState("furniture"); // "furniture", "scenes", "generate", "json"
+  const [activeTab, setActiveTab] = useState("furniture"); 
 
   return (
     <div className={b({ open: isOpen })}>

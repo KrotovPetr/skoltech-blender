@@ -5,22 +5,18 @@ import './Model.scss';
 
 const b = block('model');
 
-// Компонент 3D сцены с собственной логикой загрузки
 export const Scene3DContainer = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
     const [Scene3D, setScene3D] = useState<React.ComponentType | null>(null);
 
-    // Загрузка 3D компонента при монтировании
     useEffect(() => {
         let isMounted = true;
 
         const loadScene3D = async () => {
             try {
-                // Динамический импорт компонента
                 const module = await import('../../widgets/Scene3D/deprecated-version-1/SceneOld');
 
-                // Если компонент всё ещё смонтирован, обновляем состояние
                 if (isMounted) {
                     setScene3D(() => module.Scene);
                     setIsLoading(false);
@@ -36,7 +32,6 @@ export const Scene3DContainer = () => {
 
         loadScene3D();
 
-        // Обработчик потери контекста WebGL
         const handleContextLost = (event: any) => {
             event.preventDefault();
             console.warn('WebGL context lost. Attempting to recover...');
@@ -47,14 +42,12 @@ export const Scene3DContainer = () => {
 
         window.addEventListener('webglcontextlost', handleContextLost, false);
 
-        // Функция очистки при размонтировании
         return () => {
             isMounted = false;
             window.removeEventListener('webglcontextlost', handleContextLost);
         };
     }, []);
 
-    // Функция повторной попытки загрузки при ошибке
     const handleRetry = () => {
         setIsLoading(true);
         setHasError(false);
@@ -71,7 +64,6 @@ export const Scene3DContainer = () => {
             });
     };
 
-    // Состояние загрузки
     if (isLoading) {
         return (
             <Flex direction="column" alignItems="center" justifyContent="center" className={b('loader-container')}>
@@ -86,7 +78,6 @@ export const Scene3DContainer = () => {
         );
     }
 
-    // Состояние ошибки
     if (hasError || !Scene3D) {
         return (
             <Flex direction="column" alignItems="center" justifyContent="center" className={b('error-container')}>
@@ -107,6 +98,5 @@ export const Scene3DContainer = () => {
         );
     }
 
-    // Рендерим 3D сцену
     return <Scene3D />;
 };

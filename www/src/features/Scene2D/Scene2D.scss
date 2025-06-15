@@ -2,7 +2,7 @@
     position: relative;
     margin: 0 auto;
     overflow: hidden;
-    touch-action: none; // Отключаем стандартные жесты браузера
+    touch-action: none;
     width: 100%;
     
     &__svg-container {
@@ -84,7 +84,6 @@
       color: #666;
     }
     
-    // Мобильные стили
     &--mobile {
       .room-layout__svg {
         touch-action: none;
@@ -102,7 +101,6 @@
     }
   }
   
-  // Стили для перетаскиваемых объектов
   .draggable-object {
     cursor: move;
     touch-action: none;
@@ -121,10 +119,9 @@
     }
   }
   
-  // Медиа-запросы для адаптивности
   @media (max-width: 767px) {
     .room-layout {
-      height: calc(100vh - 120px); // Оставляем место для контролов
+      height: calc(100vh - 120px); 
       
       &__svg {
         max-height: 100%;

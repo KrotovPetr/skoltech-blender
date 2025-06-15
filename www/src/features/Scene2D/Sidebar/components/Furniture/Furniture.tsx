@@ -3,7 +3,6 @@ import { Furniture } from "../../../types";
 import { colors } from "../../../utils";
 import { categories } from "./utils";
 
-// Компонент для отдельного элемента мебели
 const SidebarItem: React.FC<{ label: Furniture }> = ({ label }) => {
     const [{ isDragging }, drag] = useDrag(() => ({
         type: "object",
@@ -13,7 +12,6 @@ const SidebarItem: React.FC<{ label: Furniture }> = ({ label }) => {
         }),
     }));
 
-    // Используем точный цвет из словаря
     const color = colors[label];
 
     return (

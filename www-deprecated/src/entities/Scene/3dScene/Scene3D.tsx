@@ -1,11 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Canvas, useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { OrbitControls, Grid } from '@react-three/drei'; // Импорт Grid
-import * as THREE from 'three'; // Импорт AxesHelper из three
+import { OrbitControls, Grid } from '@react-three/drei';
+import * as THREE from 'three';
 import { objectsInRoom } from '../utils';
 
-// Типы для данных из JSON
 interface SizeInMeters {
     length: number;
     width: number;
@@ -52,33 +51,26 @@ interface ObjectData {
     };
 }
 
-// Пропсы для компонента Object3D
 interface Object3DProps {
     data: ObjectData;
     glbPath: string;
 }
 
-// Компонент для загрузки и отображения GLB-модели
 const Object3D: React.FC<Object3DProps> = ({ data, glbPath }) => {
     const gltf = useLoader(GLTFLoader, glbPath);
     const ref = useRef<THREE.Group>(null);
     const [isLoaded, setIsLoaded] = useState(false);
 
-    // Применяем трансформации (позиция, вращение, масштаб)
     useEffect(() => {
         if (ref.current && gltf.scene.children.length > 0) {
             const mesh = gltf.scene.children[0];
 
-            // Проверка наличия геометрии
             if (mesh && mesh.geometry && mesh.geometry.boundingBox) {
-                // Позиция
                 ref.current.position.set(data.position.x, data.position.y, data.position.z);
 
-                // Вращение (в радианах)
                 const zRotation = (data.rotation.z_angle / 180) * Math.PI;
                 ref.current.rotation.set(0, 0, zRotation);
 
-                // Масштабирование
                 const { length, width, height } = data.size_in_meters;
                 const scaleX = length / mesh.geometry.boundingBox.max.x;
                 const scaleY = width / mesh.geometry.boundingBox.max.y;
@@ -93,28 +85,25 @@ const Object3D: React.FC<Object3DProps> = ({ data, glbPath }) => {
     }, [data, gltf]);
 
     if (!isLoaded) {
-        return null; // Не рендерить, пока модель не загрузится
+        return null;
     }
 
     return <primitive object={gltf.scene} ref={ref} />;
 };
 
-// Основной компонент сцены
 const SceneBuilder: React.FC<{ objects: ObjectData[] }> = ({ objects }) => {
     return (
         <Canvas camera={{ position: [5, 5, 5], fov: 50 }}>
-            {/* Сетка */}
             <Grid
-                position={[0, 0, 0]} // Позиция сетки
-                args={[10, 10]} // Размер сетки (ширина, высота)
-                cellSize={1} // Размер ячейки
-                cellColor="#cccccc" // Цвет линий сетки
-                sectionColor="#888888" // Цвет основных линий
-                sectionSize={5} // Расстояние между основными линиями
+                position={[0, 0, 0]}
+                args={[10, 10]} 
+                cellSize={1} 
+                cellColor="#cccccc" 
+                sectionColor="#888888" 
+                sectionSize={5} 
             />
 
-            {/* Оси */}
-            <axesHelper args={[5]} /> {/* Длина осей */}
+            <axesHelper args={[5]} /> 
 
             <ambientLight intensity={0.5} />
             <pointLight position={[10, 10, 10]} />
@@ -126,7 +115,6 @@ const SceneBuilder: React.FC<{ objects: ObjectData[] }> = ({ objects }) => {
     );
 };
 
-// Пример использования
 const Scene: React.FC = () => {
     return (
         <div style={{ width: '100vw', height: '100vh' }}>

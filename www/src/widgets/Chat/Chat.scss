@@ -3,7 +3,7 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: #f5f5f7; // iOS-подобный светлый фон
+    background-color: #f5f5f7; 
     
     &__messages-container {
         flex: 1;
@@ -20,7 +20,7 @@
         right: 0;
         display: flex;
         justify-content: center;
-        pointer-events: none; // Чтобы пользователь мог взаимодействовать с сообщениями под лоадером
+        pointer-events: none;
     }
     
     &__loader {
@@ -31,7 +31,6 @@
     }
 }
 
-// Стили для iPhone X и новее с "челкой"
 @supports (padding-top: env(safe-area-inset-top)) {
     .chat {
         padding-top: env(safe-area-inset-top);

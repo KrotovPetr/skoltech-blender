@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } f
 import { useDrop } from "react-dnd";
 import { DraggableObject } from "./DraggableObject";
 
-// Интерфейсы для входных данных
 interface SizeInMeters {
     length: number;
     width: number;
@@ -60,18 +59,15 @@ interface ColorsDisctionary {
     [key: string]: string;
 }
 
-// Константы
 const METERS_TO_PIXELS = 100;
 const LABEL_SPACE = 20;
 
 
-const ROOM_WIDTH_1 = 8.13 * METERS_TO_PIXELS; // в пикселях
-const ROOM_HEIGHT_1 = 10.96 * METERS_TO_PIXELS; // в пикселях
-// Определение размеров комнаты
-const ROOM_WIDTH_2 = 9.13 * METERS_TO_PIXELS; // в пикселях
-const ROOM_HEIGHT_2 = 9.86 * METERS_TO_PIXELS; // в пикселях
+const ROOM_WIDTH_1 = 8.13 * METERS_TO_PIXELS; 
+const ROOM_HEIGHT_1 = 10.96 * METERS_TO_PIXELS;
+const ROOM_WIDTH_2 = 9.13 * METERS_TO_PIXELS; 
+const ROOM_HEIGHT_2 = 9.86 * METERS_TO_PIXELS;
 
-// Словарь цветов
 export const colors: ColorsDisctionary = {
     "TV stand": "#FF0000",
     "bar counter": "#0000FF",
@@ -102,7 +98,6 @@ export const colors: ColorsDisctionary = {
     "window": "#000000",
 };
 
-// Вспомогательные функции
 const getFurnitureTypeFromId = (id: string): string => {
     return id.split('_')[0];
 };
@@ -168,7 +163,7 @@ const convertToJSON = (svgObject: PlainSVGObjectDataWithRotation): InputObject =
         size_in_meters: {
             length: svgObject.coordinates.width / METERS_TO_PIXELS,
             width: svgObject.coordinates.height / METERS_TO_PIXELS,
-            height: 0.98 // дефолтная высота
+            height: 0.98 
         },
         position: {
             x: svgObject.coordinates.x / METERS_TO_PIXELS,
@@ -192,7 +187,6 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
         9.86,
         2.5
     ]
-    // Инициализация viewBox
     const [viewBox] = useState({
         minX: 0,
         minY: 0,
@@ -200,7 +194,6 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
         height: modelId === 1 ? ROOM_HEIGHT_1 : ROOM_HEIGHT_2
     });
 
-    // Размеры и состояния
     const SCALED_WIDTH = viewBox.width;
     const SCALED_HEIGHT = viewBox.height;
     const SVG_WIDTH = SCALED_WIDTH + LABEL_SPACE * 2;
@@ -211,12 +204,10 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
     );
     const [selectedObjectId, setSelectedObjectId] = useState<string | null>(null);
 
-    // Refs
     const nextIdRef = useRef(initialObjects.length);
     const svgRef = useRef<SVGSVGElement>(null);
     const roomSvgRef = useRef<SVGSVGElement>(null);
 
-    // Границы комнаты
     const bounds = {
         minX: 0,
         maxX: modelId === 1 ? ROOM_WIDTH_1 : ROOM_WIDTH_2,
@@ -224,13 +215,11 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
         maxY: modelId === 1 ? ROOM_HEIGHT_1 : ROOM_HEIGHT_2
     };
 
-    // Императивный handle для родительского компонента
     useImperativeHandle(ref, () => ({
         loadSceneFromData: (data: InputObject[]) => {
             const convertedObjects = data.map(convertToSVGObject);
             setObjects(convertedObjects);
             setSelectedObjectId(null);
-            // Обновляем счетчик ID на основе загруженных объектов
             nextIdRef.current = data.length;
         }
     }));
@@ -240,7 +229,6 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
         setObjects(convertedObjects);
     }, [initialObjects]);
 
-    // Преобразование координат
     const getMouseSVGCoordinates = (clientX: number, clientY: number) => {
         if (!roomSvgRef.current) return { x: 0, y: 0 };
 
@@ -255,7 +243,6 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
         return point.matrixTransform(ctm.inverse());
     };
 
-    // Функция для проверки, находится ли объект полностью внутри комнаты
     const isInsideRoom = (
         x: number,
         y: number,
@@ -263,11 +250,9 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
         height: number,
         rotation: number
     ): boolean => {
-        // Для объектов с вращением, проверим все четыре угла
         const halfWidth = width / 2;
         const halfHeight = height / 2;
 
-        // Углы прямоугольника до вращения (относительно центра)
         const corners = [
             { x: -halfWidth, y: -halfHeight },
             { x: halfWidth, y: -halfHeight },
@@ -275,22 +260,17 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
             { x: -halfWidth, y: halfHeight }
         ];
 
-        // Вращение в радианах
         const radians = (rotation * Math.PI) / 180;
         const cosTheta = Math.cos(radians);
         const sinTheta = Math.sin(radians);
 
-        // Проверяем, что все углы находятся внутри комнаты
         for (const corner of corners) {
-            // Применяем вращение к углу
             const rotatedX = corner.x * cosTheta - corner.y * sinTheta;
             const rotatedY = corner.x * sinTheta + corner.y * cosTheta;
 
-            // Абсолютные координаты угла
             const absoluteX = x + rotatedX;
             const absoluteY = y + rotatedY;
 
-            // Проверяем, что угол внутри комнаты
             if (
                 absoluteX < bounds.minX ||
                 absoluteX > bounds.maxX ||
@@ -304,12 +284,10 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
         return true;
     };
 
-    // Обработчики объектов
     const moveObject = (id: string, x: number, y: number) => {
         const obj = objects.find(o => o.id === id);
         if (!obj) return;
 
-        // Проверяем, будет ли новое положение внутри комнаты
         if (isInsideRoom(x, y, obj.coordinates.width, obj.coordinates.height, obj.rotation)) {
             setObjects(prevObjects =>
                 prevObjects.map(obj =>
@@ -332,15 +310,12 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
         const obj = objects.find(o => o.id === id);
         if (!obj) return;
 
-        // Создаем обновленный объект
         const updatedObject = { ...obj, ...updates };
 
-        // Если есть изменения в координатах или размерах
         if (updates.coordinates || updates.rotation !== undefined) {
             const newCoords = updates.coordinates || obj.coordinates;
             const newRotation = updates.rotation !== undefined ? updates.rotation : obj.rotation;
 
-            // Проверяем, будет ли новое положение внутри комнаты
             if (isInsideRoom(
                 newCoords.x,
                 newCoords.y,
@@ -353,7 +328,6 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
                 );
             }
         } else {
-            // Если изменения не касаются положения или размеров
             setObjects(prevObjects =>
                 prevObjects.map(o => o.id === id ? updatedObject : o)
             );
@@ -376,9 +350,8 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
     const [, drop] = useDrop(() => ({
         accept: "object",
         drop: (item: { label: string, style: string, material: string, color: string }, monitor) => {
-            // Проверяем, было ли событие drop уже обработано в дочернем компоненте
             if (monitor.didDrop()) {
-                return; // Если событие уже обработано, ничего не делаем
+                return; 
             }
 
             const dropOffset = monitor.getClientOffset();
@@ -389,11 +362,9 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
             const newId = `${normalizedLabel}_${nextIdRef.current}`;
             nextIdRef.current += 1;
 
-            // Размеры по умолчанию в зависимости от типа предмета
             let defaultWidth = 1.0 * METERS_TO_PIXELS;
             let defaultHeight = 0.5 * METERS_TO_PIXELS;
 
-            // Устанавливаем более подходящие размеры для разных типов мебели
             const normalizedType = normalizeForColorDictionary(item.label);
             if (normalizedType === "sofa") {
                 defaultWidth = 2.0 * METERS_TO_PIXELS;
@@ -406,9 +377,7 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
                 defaultHeight = 0.7 * METERS_TO_PIXELS;
             }
 
-            // Проверяем, будет ли новый объект внутри комнаты
             if (isInsideRoom(x, y, defaultWidth, defaultHeight, 0)) {
-                // Создаем новый объект
                 const newObj: PlainSVGObjectDataWithRotation = {
                     id: newId,
                     label: item.label,
@@ -425,14 +394,11 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
                     furnitureType: normalizedType
                 };
 
-                // Обновляем состояние с новым объектом
                 setObjects(prevObjects => {
                     const newObjects = [...prevObjects, newObj];
 
-                    // Преобразуем обновленный список объектов в JSON для обновления
                     const jsonObjects = newObjects.map(obj => convertToJSON(obj));
 
-                    // Вызываем updateJson с обновленными данными
                     updateJson(JSON.stringify([{
                         "room_dimensions": roomDimensions
                     }, ...jsonObjects], null, 2));
@@ -443,21 +409,18 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
                 setSelectedObjectId(newId);
             }
         },
-        // Дополнительная опция для работы с вложенными drop-целями
         canDrop: (item, monitor) => {
             const dropOffset = monitor.getClientOffset();
             if (!dropOffset || !roomSvgRef.current) return false;
 
             const { x, y } = getMouseSVGCoordinates(dropOffset.x, dropOffset.y);
 
-            // Проверяем, находится ли точка drop в пределах комнаты
             return x >= bounds.minX && x <= bounds.maxX &&
                 y >= bounds.minY && y <= bounds.maxY;
         }
     }), [objects, isInsideRoom, getMouseSVGCoordinates]);
 
 
-    // Эффекты
     useEffect(() => {
         if (roomSvgRef.current) {
             drop(roomSvgRef.current);
@@ -471,7 +434,6 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
         }, ...updatedObjects], null, 2));
     }, [objects, updateJson]);
 
-    // Рендер
     return (
         <div>
             <svg
@@ -492,7 +454,6 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
                     </clipPath>
                 </defs>
 
-                {/* Подписи стен */}
                 <text
                     x={LABEL_SPACE + SCALED_WIDTH / 2}
                     y={LABEL_SPACE / 2}
@@ -539,7 +500,6 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
                 >
                     Правая стена
                 </text>
-                {/* Внутренний SVG */}
                 <svg
                     ref={roomSvgRef}
                     x={LABEL_SPACE}
@@ -551,14 +511,13 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
                     onClick={handleSvgClick}
                     style={{ clipPath: "url(#room-clip)", pointerEvents: "all" }}
                 >
-                    {/* Фон и рамка комнаты */}
                     <rect
                         x={0}
                         y={0}
                         width={modelId === 1 ? ROOM_WIDTH_1 : ROOM_WIDTH_2}
                         height={modelId === 1 ? ROOM_HEIGHT_1 : ROOM_HEIGHT_2}
                         fill="white"
-                        pointerEvents="all" // Этот прямоугольник должен принимать события drop
+                        pointerEvents="all"
                     />
                     <rect
                         x={0}
@@ -568,10 +527,9 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
                         fill="none"
                         stroke="black"
                         strokeWidth={4}
-                        pointerEvents="none" // Рамка не должна перехватывать события
+                        pointerEvents="none" 
                     />
 
-                    {/* Объекты */}
                     {objects.map((obj, index) => (
                         <DraggableObject
                             key={obj.id}
@@ -592,7 +550,6 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
                     ))}
                 </svg>
 
-                {/* Рамка вокруг внутреннего SVG */}
                 <rect
                     x={LABEL_SPACE}
                     y={LABEL_SPACE}

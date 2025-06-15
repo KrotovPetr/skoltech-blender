@@ -31,7 +31,6 @@ export const JsonEditor = ({ onUpdateFromJSON, sceneJSON }: JsonEditorProps) => 
 
     }, [editorErrors])
 
-    // Обновляем editor когда приходят новые данные из props
     useEffect(() => {
         if (sceneJSON && sceneJSON !== currentValue) {
             setCurrentValue(sceneJSON);
@@ -41,7 +40,6 @@ export const JsonEditor = ({ onUpdateFromJSON, sceneJSON }: JsonEditorProps) => 
         }
     }, [sceneJSON]);
 
-    // Показываем уведомление с таймером
     const showNotification = (message: string, isError = false) => {
         setToastMessage(message);
         setShowToast(true);
@@ -55,7 +53,6 @@ export const JsonEditor = ({ onUpdateFromJSON, sceneJSON }: JsonEditorProps) => 
         }, 3000);
     };
 
-    // Очищаем таймер при размонтировании
     useEffect(() => {
         return () => {
             if (timeoutRef.current) {
@@ -64,23 +61,19 @@ export const JsonEditor = ({ onUpdateFromJSON, sceneJSON }: JsonEditorProps) => 
         };
     }, []);
 
-    // Обработчик изменений в Monaco Editor
     const handleEditorChange = (value: string | undefined) => {
         if (!value) return;
         setCurrentValue(value);
 
-        // Если включен автоматический режим, применяем изменения сразу
         if (autoApply) {
             try {
                 const sceneData = JSON.parse(value);
 
-                // Проверяем валидность JSON
                 if (!sceneData.objects || !Array.isArray(sceneData.objects)) {
                     setEditorErrors("Неверный формат данных: objects должен быть массивом");
                     return;
                 }
 
-                // Применяем изменения
                 onUpdateFromJSON(sceneData);
                 setEditorErrors(null);
                 add({
@@ -97,7 +90,6 @@ export const JsonEditor = ({ onUpdateFromJSON, sceneJSON }: JsonEditorProps) => 
         }
     };
 
-    // Применение изменений из редактора вручную
     const handleApplyJSON = () => {
         if (editorRef.current) {
             try {
@@ -119,7 +111,6 @@ export const JsonEditor = ({ onUpdateFromJSON, sceneJSON }: JsonEditorProps) => 
         }
     };
 
-    // Функция для скачивания JSON
     const handleDownloadJSON = () => {
         if (editorRef.current) {
             const value = editorRef.current.getValue();
@@ -134,7 +125,6 @@ export const JsonEditor = ({ onUpdateFromJSON, sceneJSON }: JsonEditorProps) => 
         }
     };
 
-    // Функция для форматирования JSON
     const handleFormatJSON = () => {
         if (editorRef.current) {
             try {
@@ -151,21 +141,17 @@ export const JsonEditor = ({ onUpdateFromJSON, sceneJSON }: JsonEditorProps) => 
         }
     };
 
-    // Настройка Monaco Editor
     const handleEditorDidMount = (editor: any, monaco: Monaco) => {
         editorRef.current = editor;
 
-        // Если есть начальные данные, загрузим их
         if (sceneJSON) {
             editor.setValue(sceneJSON);
         }
 
-        // Добавим автоформатирование при Shift+Alt+F
         editor.addCommand(monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.KeyF, () => {
             handleFormatJSON();
         });
 
-        // Настройка автоформатирования для массива объектов
         monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
             validate: true,
             schemas: [
@@ -176,7 +162,6 @@ export const JsonEditor = ({ onUpdateFromJSON, sceneJSON }: JsonEditorProps) => 
                         type: "array",
                         items: {
                             oneOf: [
-                                // Первый элемент - размеры комнаты
                                 {
                                     type: "object",
                                     properties: {
@@ -189,7 +174,6 @@ export const JsonEditor = ({ onUpdateFromJSON, sceneJSON }: JsonEditorProps) => 
                                     },
                                     required: ["room_dimensions"]
                                 },
-                                // Последующие элементы - объекты мебели
                                 {
                                     type: "object",
                                     properties: {
@@ -230,10 +214,6 @@ export const JsonEditor = ({ onUpdateFromJSON, sceneJSON }: JsonEditorProps) => 
 
     return (
         <Flex className={b()} direction={"column"} gap={2} style={{ padding: "10px 0" }}>
-
-            {/* {editorErrors && (
-                <Alert theme="warning" title="Warning" message={editorErrors} />
-            )} */}
 
             <Flex gap="2" alignItems="center" style={{ marginBottom: '10px' }}>
                 <input

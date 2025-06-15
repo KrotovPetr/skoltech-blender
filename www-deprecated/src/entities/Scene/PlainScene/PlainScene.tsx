@@ -5,7 +5,6 @@ import { Grid, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { objectsInRoom } from '../utils';
 
-// Типы для данных из JSON
 interface SizeInMeters {
   length: number;
   width: number;
@@ -52,31 +51,25 @@ interface ObjectData {
   };
 }
 
-// Пропсы для компонента Object3D
 interface Object3DProps {
   data: ObjectData;
   glbPath: string;
 }
 
-// Компонент для загрузки и отображения GLB-модели
 const Object3D: React.FC<Object3DProps> = ({ data, glbPath }) => {
   const gltf = useLoader(GLTFLoader, glbPath);
   const ref = useRef<THREE.Group>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Применяем трансформации (позиция, вращение, масштаб)
   useEffect(() => {
     if (ref.current && gltf.scene) {
       console.log(`Модель ${data.new_object_id} загружена:`, gltf);
 
-      // Позиция
-      ref.current.position.set(data.position.x, data.position.y, 0); // Устанавливаем Z = 0 для 2D
+      ref.current.position.set(data.position.x, data.position.y, 0); 
 
-      // Вращение (в радианах)
       const zRotation = (data.rotation.z_angle / 180) * Math.PI;
       ref.current.rotation.set(0, 0, zRotation);
 
-      // Масштабирование
       if (gltf.scene.children.length > 0) {
         const mesh = gltf.scene.children[0];
         if (mesh.geometry && mesh.geometry.boundingBox) {
@@ -95,19 +88,18 @@ const Object3D: React.FC<Object3DProps> = ({ data, glbPath }) => {
   }, [data, gltf]);
 
   if (!isLoaded) {
-    return null; // Не рендерить, пока модель не загрузится
+    return null; 
   }
 
   return (
     <>
       <primitive object={gltf.scene} ref={ref} />
-      {/* Подпись объекта */}
       <Text
-        position={[data.position.x, data.position.y + 0.5, 0]} // Позиция текста (немного выше объекта)
-        fontSize={0.2} // Размер текста
-        color="black" // Цвет текста
-        anchorX="center" // Центрирование по X
-        anchorY="middle" // Центрирование по Y
+        position={[data.position.x, data.position.y + 0.5, 0]}
+        fontSize={0.2}
+        color="black"
+        anchorX="center"
+        anchorY="middle"
       >
         {data.new_object_id}
       </Text>
@@ -115,26 +107,24 @@ const Object3D: React.FC<Object3DProps> = ({ data, glbPath }) => {
   );
 };
 
-// Основной компонент сцены
 const SceneBuilder: React.FC<{ objects: ObjectData[] }> = ({ objects }) => {
   return (
     <Canvas
       camera={{
-        position: [0, 0, 10], // Камера сверху
+        position: [0, 0, 10], 
         fov: 50,
-        up: [0, 1, 0], // Ось Y направлена вверх
+        up: [0, 1, 0],
         near: 0.1,
         far: 1000,
       }}
     >
-      {/* Сетка */}
       <Grid
-        position={[0, 0, 0]} // Позиция сетки
-        args={[10, 10]} // Размер сетки (ширина, высота)
-        cellSize={1} // Размер ячейки
-        cellColor="#cccccc" // Цвет линий сетки
-        sectionColor="#888888" // Цвет основных линий
-        sectionSize={5} // Расстояние между основными линиями
+        position={[0, 0, 0]} 
+        args={[10, 10]} 
+        cellSize={1}
+        cellColor="#cccccc" 
+        sectionColor="#888888" 
+        sectionSize={5}
       />
 
       <ambientLight intensity={0.5} />

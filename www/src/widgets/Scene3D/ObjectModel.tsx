@@ -64,18 +64,15 @@ const ObjectModel: React.FC<ObjectModelProps> = ({ object }) => {
             }
         );
 
-        // Cleanup function to abort any pending loads if component unmounts
         return () => {
             setModel(null);
         };
     }, [modelPath, object.new_object_id]);
 
-    // If there was an error loading the model, show placeholder
     if (loadError || !modelPath) {
         return renderPlaceholder();
     }
 
-    // If model still loading, show loading indicator or nothing
     if (!model) {
         return (
             <mesh position={[object.position.x, object.position.y, object.position.z]}>
@@ -85,19 +82,15 @@ const ObjectModel: React.FC<ObjectModelProps> = ({ object }) => {
         );
     }
 
-    // Apply transformations to the loaded model
     useEffect(() => {
         if (model) {
-            // Apply scaling to match the dimensions from the JSON
             model.traverse((child) => {
                 if (child instanceof Mesh) {
-                    // Calculate bounding box
                     const box = new Box3().setFromObject(child);
                     const size = new Vector3();
                     box.getSize(size);
 
                     if (size.x > 0 && size.y > 0 && size.z > 0) {
-                        // Calculate scale factors
                         const scaleX = object.size_in_meters.length / size.x;
                         const scaleY = object.size_in_meters.width / size.y;
                         const scaleZ = object.size_in_meters.height / size.z;
@@ -109,7 +102,6 @@ const ObjectModel: React.FC<ObjectModelProps> = ({ object }) => {
         }
     }, [model, object.size_in_meters]);
 
-    // Convert rotation
     const rotationZ = degToRad(object.rotation.z_angle) + Math.PI;
 
     return (
@@ -121,7 +113,6 @@ const ObjectModel: React.FC<ObjectModelProps> = ({ object }) => {
     );
 };
 
-// Helper function to get colors
 function getColorForObject(objectId: string): string {
     const objectType = objectId.split('_')[0];
 

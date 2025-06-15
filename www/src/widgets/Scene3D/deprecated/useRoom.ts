@@ -6,16 +6,15 @@ export const useRoom = (length: number, width: number, height: number) => {
     const textures = useMemo(() => {
         const loader = new THREE.TextureLoader();
         return {
-            wall: loader.load("https://i.imgur.com/7QzHuKb.jpg"), // Светлые обои
-            floor: loader.load("https://i.imgur.com/3K8hQ5a.jpg"), // Ламинат
-            ceiling: new THREE.MeshStandardMaterial({ color: 0xffffff }) // Белый потолок
+            wall: loader.load("https://i.imgur.com/7QzHuKb.jpg"), 
+            floor: loader.load("https://i.imgur.com/3K8hQ5a.jpg"), 
+            ceiling: new THREE.MeshStandardMaterial({ color: 0xffffff }) 
         };
     }, []);
 
     const roomGroup = useMemo(() => {
         const group = new THREE.Group();
 
-        // Стены
         const wallMaterial = new THREE.MeshStandardMaterial({
             map: textures.wall,
             normalMap: textures.wall,
@@ -28,7 +27,6 @@ export const useRoom = (length: number, width: number, height: number) => {
         );
         walls.geometry.translate(0, height / 2, 0);
 
-        // Пол
         const floorMaterial = new THREE.MeshStandardMaterial({
             map: textures.floor,
             normalMap: textures.floor,
@@ -42,7 +40,6 @@ export const useRoom = (length: number, width: number, height: number) => {
         floor.rotation.x = -Math.PI / 2;
         floor.receiveShadow = true;
 
-        // Потолок
         const ceiling = new THREE.Mesh(
             new THREE.PlaneGeometry(length, width),
             textures.ceiling
@@ -50,7 +47,6 @@ export const useRoom = (length: number, width: number, height: number) => {
         ceiling.rotation.x = Math.PI / 2;
         ceiling.position.y = height;
 
-        // Настройка повторения текстур
         textures.wall.repeat.set(length / 2, height / 2);
         textures.wall.wrapS = THREE.RepeatWrapping;
         textures.wall.wrapT = THREE.RepeatWrapping;

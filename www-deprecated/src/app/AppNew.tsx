@@ -4,37 +4,6 @@ import { Card, Flex, Text } from '@gravity-ui/uikit';
 import { MonacoEditor } from '../entities/MonacoEditor';
 import block from "bem-cn-lite";
 import Scene3D from '../entities/Scene/3dScene/Scene3D';
-
-// {
-//     "objects": [
-//         {
-//             "name": "Sofa",
-//             "size": { "length": 2.0, "width": 0.9 },
-//             "position": { "x": 2.2, "y": 0.45 }
-//         },
-//         {
-//             "name": "Coffee Table",
-//             "size": { "length": 1.2, "width": 0.6 },
-//             "position": { "x": 2.2, "y": 2.8 }
-//         },
-//         {
-//             "name": "TV Stand",
-//             "size": { "length": 1.8, "width": 0.5 },
-//             "position": { "x": 2.2, "y": 5.35 }
-//         },
-//         {
-//             "name": "Armchair",
-//             "size": { "length": 0.8, "width": 0.8 },
-//             "position": { "x": 0.8, "y": 4.0 }
-//         },
-//         {
-//             "name": "Bookshelf",
-//             "size": { "length": 0.4, "width": 1.5 },
-//             "position": { "x": 4.2, "y": 4.0 }
-//         }
-//     ]
-// }
-
 const b = block('app');
 
 const App: React.FC = () => {
