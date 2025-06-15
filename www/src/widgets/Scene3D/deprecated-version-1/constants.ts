@@ -580,8 +580,8 @@ export const TGLBModelsV3: TGLBModelV2[] = [
         "new_object_id": "bookshelf_1",
         "size_in_meters": {
             "length": 1.7,
-            "width": 0.4,
-            "height": 2.0
+            "width": 2.0,
+            "height": 0.4
         },
         "position": {
             "x": 0.4,

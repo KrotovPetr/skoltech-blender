@@ -506,7 +506,7 @@ export const data2 = [
     },
     "position": {
       "x": 8.0,
-      "y": 2.2,
+      "y": 2.05,
       "z": 0.0
     },
     "rotation_z": 90,
@@ -517,13 +517,13 @@ export const data2 = [
   {
     "new_object_id": "floor lamp_1",
     "size_in_meters": {
-      "length": 0.8,
-      "width": 0.8,
+      "length": 0.7,
+      "width": 0.7,
       "height": 1.2
     },
     "position": {
-      "x": 7.86,
-      "y": 1.3,
+      "x": 7.9,
+      "y": 1.15,
       "z": -0.4
     },
     "rotation_z": 0,
