@@ -102,7 +102,7 @@ const Room: React.FC = () => {
 
     const roomDimensions = useMemo(() => {
         if (modelId === 2) {
-            return ALL_SETTINGS[2].roomDimensions; 
+            return ALL_SETTINGS[2].roomDimensions;
         }
         return ALL_SETTINGS[1].roomDimensions;
     }, [modelId]);
@@ -158,9 +158,9 @@ export const Scene: React.FC = () => {
 
     const SETTINGS = useMemo(() => {
         if (modelId === 2) {
-            return ALL_SETTINGS[2]; 
+            return ALL_SETTINGS[2];
         }
-        return ALL_SETTINGS[1]; 
+        return ALL_SETTINGS[1];
     }, [modelId]);
 
     return (

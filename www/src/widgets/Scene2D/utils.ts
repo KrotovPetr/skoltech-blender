@@ -365,8 +365,8 @@ export const data2 = [
     "new_object_id": "sofa_1",
     "size_in_meters": {
       "length": 4.6,
-      "width": 3.2,
-      "height": 1.3
+      "width": 1.3,
+      "height": 3.2
     },
     "position": {
       "x": 5.0,
@@ -517,9 +517,9 @@ export const data2 = [
   {
     "new_object_id": "floor lamp_1",
     "size_in_meters": {
-      "length": 3.3,
-      "width": 1.5,
-      "height": 3.3
+      "length": 0.8,
+      "width": 0.8,
+      "height": 1.2
     },
     "position": {
       "x": 7.86,

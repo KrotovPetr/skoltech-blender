@@ -63,9 +63,9 @@ const METERS_TO_PIXELS = 100;
 const LABEL_SPACE = 20;
 
 
-const ROOM_WIDTH_1 = 8.13 * METERS_TO_PIXELS; 
+const ROOM_WIDTH_1 = 8.13 * METERS_TO_PIXELS;
 const ROOM_HEIGHT_1 = 10.96 * METERS_TO_PIXELS;
-const ROOM_WIDTH_2 = 9.13 * METERS_TO_PIXELS; 
+const ROOM_WIDTH_2 = 9.13 * METERS_TO_PIXELS;
 const ROOM_HEIGHT_2 = 9.86 * METERS_TO_PIXELS;
 
 export const colors: ColorsDisctionary = {
@@ -163,7 +163,7 @@ const convertToJSON = (svgObject: PlainSVGObjectDataWithRotation): InputObject =
         size_in_meters: {
             length: svgObject.coordinates.width / METERS_TO_PIXELS,
             width: svgObject.coordinates.height / METERS_TO_PIXELS,
-            height: 0.98 
+            height: 0.98
         },
         position: {
             x: svgObject.coordinates.x / METERS_TO_PIXELS,
@@ -351,7 +351,7 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
         accept: "object",
         drop: (item: { label: string, style: string, material: string, color: string }, monitor) => {
             if (monitor.didDrop()) {
-                return; 
+                return;
             }
 
             const dropOffset = monitor.getClientOffset();
@@ -527,7 +527,7 @@ export const RoomLayout = forwardRef<RoomLayoutRef, RoomLayoutProps>(({ initialO
                         fill="none"
                         stroke="black"
                         strokeWidth={4}
-                        pointerEvents="none" 
+                        pointerEvents="none"
                     />
 
                     {objects.map((obj, index) => (

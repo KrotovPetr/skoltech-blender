@@ -17,7 +17,7 @@ export const App = () => {
   const [compact, setCompact] = useState<boolean>(false);
   const [hasGeneratedScene, setHasGeneratedScene] = useState<boolean>(false);
   const [latestModelId, setLatestModelId] = useState<number>(1);
-  const [menuKey, setMenuKey] = useState<number>(0); 
+  const [menuKey, setMenuKey] = useState<number>(0);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -37,7 +37,7 @@ export const App = () => {
 
           if (lastRobotMessage.modelId !== latestModelId) {
             setLatestModelId(lastRobotMessage.modelId);
-            setMenuKey(prev => prev + 1); 
+            setMenuKey(prev => prev + 1);
           }
 
           if (!hasGeneratedScene) {
@@ -151,7 +151,7 @@ export const App = () => {
           headerDecoration={true}
           logo={{
             icon: EyesLookRight,
-            text: 'Plain Design'
+            text: 'Plan Design'
           }}
           menuItems={getMenuItems()}
         />

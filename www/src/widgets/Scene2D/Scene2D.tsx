@@ -70,14 +70,14 @@ export const Scene2D = () => {
             const containerWidth = layoutContainerRef.current.clientWidth;
             const containerHeight = layoutContainerRef.current.clientHeight;
 
-            const roomWidthPx = modelId === 1 ? 8.3 : 9.13 * 100 + 40; 
-            const roomHeightPx = modelId === 1 ? 10.96 : 9.86 * 100 + 40; 
+            const roomWidthPx = modelId === 1 ? 8.3 : 9.13 * 100 + 40;
+            const roomHeightPx = modelId === 1 ? 10.96 : 9.86 * 100 + 40;
 
 
             const widthScale = containerWidth / roomWidthPx;
             const heightScale = containerHeight / roomHeightPx;
 
-            const optimalScale = Math.min(widthScale, heightScale, 1); 
+            const optimalScale = Math.min(widthScale, heightScale, 1);
 
             setScale(optimalScale);
         };
@@ -90,7 +90,7 @@ export const Scene2D = () => {
             clearTimeout(timeoutId);
             window.removeEventListener('resize', calculateScale);
         };
-    }, [isSidebarOpen]); 
+    }, [isSidebarOpen]);
 
     useEffect(() => {
         if (roomLayoutRef.current && roomLayoutRef.current.loadSceneFromData) {
